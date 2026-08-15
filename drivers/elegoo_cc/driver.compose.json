@@ -378,7 +378,7 @@
         "de": "Verbleibender Speicher",
         "no": "Gjenværende minne"
       },
-      "units": { "en": "B", "nl": "B", "de": "B", "no": "B" }
+      "units": { "en": "MB", "nl": "MB", "de": "MB", "no": "MB" }
     }
   },
   "pair": [

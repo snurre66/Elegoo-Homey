@@ -37,10 +37,16 @@ class ElegooCCDevice extends PrinterDevice {
     // Connect after all capabilities are ready
     this.client.connect();
 
-    // Periodic attribute refresh (FDM-specific Cmd 385)
+    this.client.on('connected', () => {
+      this.log('Enabling printer video stream (CMD 386)');
+      this.client.sendCommand(SDCP_CMD.TOGGLE_VIDEO_STREAM, { Enable: 1 }).catch(() => {});
+    });
+
+    // Periodic attribute refresh (FDM-specific Cmd 385) & video stream keepalive (Cmd 386)
     this._attrInterval = this.homey.setInterval(() => {
       this.log('Periodic sync: Requesting attributes (FDM_GET_ATTRIBUTES)');
       this.client.sendCommand(SDCP_CMD.FDM_GET_ATTRIBUTES).catch(() => {});
+      this.client.sendCommand(SDCP_CMD.TOGGLE_VIDEO_STREAM, { Enable: 1 }).catch(() => {});
     }, 60000);
   }
 
@@ -116,17 +122,23 @@ class ElegooCCDevice extends PrinterDevice {
         this.snapshotImage.update().catch(() => {});
       }, 5000);
 
-      // Live Video Stream
-      this.liveVideo = await this.homey.videos.createVideoOther();
-      this.liveVideo.registerVideoUrlListener(async () => {
-        const url = `http://${this.host}:3031/video`;
-        this.log(`Camera: live stream URL requested, returning ${url}`);
-        return url;
-      });
+      // Live Video Stream (supported on Homey Pro 2023+, optional on older models)
+      if (this.homey.videos && typeof this.homey.videos.createVideoOther === 'function') {
+        try {
+          this.liveVideo = await this.homey.videos.createVideoOther();
+          this.liveVideo.registerVideoUrlListener(async () => {
+            const url = `http://${this.host}:3031/video`;
+            this.log(`Camera: live stream URL requested, returning ${url}`);
+            return url;
+          });
 
-      await this.setCameraVideo('elegoo_live', 'Live Stream', this.liveVideo)
-        .then(() => this.log('Camera: Live Stream registered OK'))
-        .catch((e) => this.error('Camera: setCameraVideo FAILED:', e.message));
+          await this.setCameraVideo('elegoo_live', 'Live Stream', this.liveVideo)
+            .then(() => this.log('Camera: Live Stream registered OK'))
+            .catch((e) => this.log('Camera: setCameraVideo skipped/unsupported:', e.message));
+        } catch (videoErr) {
+          this.log('Camera: Video streaming not supported on this Homey model:', videoErr.message);
+        }
+      }
     } catch (err) {
       this.error('Critical: Failed to register camera feeds:', err.message);
     }
@@ -141,7 +153,7 @@ class ElegooCCDevice extends PrinterDevice {
         this.log('Camera: timeout waiting for MJPEG frame');
         req.destroy();
         resolve(null);
-      }, 8000);
+      }, 5000);
 
       const req = http.get(url, (res) => {
         this.log(`Camera: HTTP ${res.statusCode} content-type: ${res.headers['content-type']}`);
@@ -161,14 +173,16 @@ class ElegooCCDevice extends PrinterDevice {
           chunks.push(chunk);
           const buf = Buffer.concat(chunks);
           const start = buf.indexOf(Buffer.from([0xff, 0xd8]));
-          const end = buf.indexOf(Buffer.from([0xff, 0xd9]));
-          if (start !== -1 && end !== -1 && end > start) {
-            frameFound = true;
-            clearTimeout(timeout);
-            const frame = buf.slice(start, end + 2);
-            this.log(`Camera: extracted JPEG frame ${frame.length} bytes`);
-            req.destroy();
-            resolve(frame);
+          if (start !== -1) {
+            const end = buf.indexOf(Buffer.from([0xff, 0xd9]), start + 2);
+            if (end !== -1) {
+              frameFound = true;
+              clearTimeout(timeout);
+              const frame = buf.slice(start, end + 2);
+              this.log(`Camera: extracted JPEG frame ${frame.length} bytes`);
+              req.destroy();
+              resolve(frame);
+            }
           }
         });
 

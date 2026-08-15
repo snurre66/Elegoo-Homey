@@ -25,5 +25,8 @@
   },
   "1.1.6": {
     "en": "Fix status 13 to Printing (Recovery) instead of Paused"
+  },
+  "1.2.0": {
+    "en": "Optimized device GUI layout, added live print thumbnail preview, skip preheat button and flow action, custom G-code flow action, and rich SDCP error reason telemetry."
   }
 }
