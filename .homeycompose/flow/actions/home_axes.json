@@ -1,16 +1,16 @@
 {
   "id": "home_axes",
   "title": {
-    "en": "Home Axes",
-    "nl": "Assen home",
-    "de": "Achsen homen",
-    "no": "Hjem akser"
+    "en": "Home axes",
+    "nl": "Assen homen",
+    "de": "Achsen referenzieren",
+    "no": "Kjør akser til hjemposisjon"
   },
   "titleFormatted": {
     "en": "Home [[axes]]",
-    "nl": "[[axes]] home",
-    "de": "[[axes]] homen",
-    "no": "Hjem [[axes]]"
+    "nl": "Zet [[axes]] naar home-positie",
+    "de": "Fahre [[axes]] zur Home-Position",
+    "no": "Kjør [[axes]] til hjemposisjon"
   },
   "args": [
     {
@@ -25,16 +25,16 @@
         {
           "id": "XYZ",
           "label": {
-            "en": "All (XYZ)",
-            "nl": "Alle (XYZ)",
-            "de": "Alle (XYZ)",
-            "no": "Alle (XYZ)"
+            "en": "All axes (XYZ)",
+            "nl": "Alle assen (XYZ)",
+            "de": "Alle Achsen (XYZ)",
+            "no": "Alle akser (XYZ)"
           }
         },
         {
           "id": "X",
           "label": {
-            "en": "X Axis",
+            "en": "X axis",
             "nl": "X-as",
             "de": "X-Achse",
             "no": "X-akse"
@@ -43,7 +43,7 @@
         {
           "id": "Y",
           "label": {
-            "en": "Y Axis",
+            "en": "Y axis",
             "nl": "Y-as",
             "de": "Y-Achse",
             "no": "Y-akse"
@@ -52,7 +52,7 @@
         {
           "id": "Z",
           "label": {
-            "en": "Z Axis",
+            "en": "Z axis",
             "nl": "Z-as",
             "de": "Z-Achse",
             "no": "Z-akse"

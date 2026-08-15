@@ -10,8 +10,21 @@
     "en": "Chamber temperature reaches [[temperature]]°C",
     "nl": "Kamertemperatuur bereikt [[temperature]]°C",
     "de": "Kammertemperatur erreicht [[temperature]]°C",
-    "no": "Kammertemperatur når [[temperature]]°C"
+    "no": "Kammertemperaturen når [[temperature]] °C"
   },
+  "tokens": [
+    {
+      "name": "temperature",
+      "type": "number",
+      "title": {
+        "en": "Temperature",
+        "nl": "Temperatuur",
+        "de": "Temperatur",
+        "no": "Temperatur"
+      },
+      "example": 45
+    }
+  ],
   "args": [
     {
       "type": "device",
@@ -30,7 +43,8 @@
       "min": 0,
       "max": 100,
       "placeholder": {
-        "en": "40"
+        "en": "40",
+        "no": "40"
       }
     }
   ]

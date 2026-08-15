@@ -1,11 +1,24 @@
 {
   "id": "bed_temp_reached",
   "title": {
-    "en": "Bed temperature reached",
-    "nl": "Bed-temperatuur bereikt",
-    "de": "Betttemperatur erreicht",
-    "no": "Bedtemperatur nådd"
+    "en": "Bed temperature reached target",
+    "nl": "Bed-temperatuur heeft doel bereikt",
+    "de": "Betttemperatur hat Ziel erreicht",
+    "no": "Bedtemperatur nådde målet"
   },
+  "tokens": [
+    {
+      "name": "temperature",
+      "type": "number",
+      "title": {
+        "en": "Temperature",
+        "nl": "Temperatuur",
+        "de": "Temperatur",
+        "no": "Temperatur"
+      },
+      "example": 60
+    }
+  ],
   "args": [
     {
       "type": "device",

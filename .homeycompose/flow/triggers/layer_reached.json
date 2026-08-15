@@ -7,11 +7,24 @@
     "no": "Lag nådd"
   },
   "titleFormatted": {
-    "en": "Layer reached [[layer]]",
-    "nl": "Laag bereikt [[layer]]",
-    "de": "Schicht erreicht [[layer]]",
-    "no": "Lag nådd [[layer]]"
+    "en": "Print reaches layer [[layer]]",
+    "nl": "Afdruk bereikt laag [[layer]]",
+    "de": "Druck erreicht Schicht [[layer]]",
+    "no": "Utskrift når lag [[layer]]"
   },
+  "tokens": [
+    {
+      "name": "layer",
+      "type": "number",
+      "title": {
+        "en": "Layer",
+        "nl": "Laag",
+        "de": "Schicht",
+        "no": "Lag"
+      },
+      "example": 50
+    }
+  ],
   "args": [
     {
       "type": "device",
@@ -22,14 +35,15 @@
       "name": "layer",
       "type": "number",
       "title": {
-        "en": "Layer Number",
+        "en": "Layer number",
         "nl": "Laagnummer",
         "de": "Schichtnummer",
         "no": "Lagnummer"
       },
-      "min": 0,
+      "min": 1,
       "placeholder": {
-        "en": "100"
+        "en": "50",
+        "no": "50"
       }
     }
   ]

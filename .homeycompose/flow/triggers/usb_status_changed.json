@@ -6,17 +6,23 @@
     "de": "USB-Laufwerkstatus geändert",
     "no": "USB-stasjonsstatus endret"
   },
+  "titleFormatted": {
+    "en": "USB drive is [[state]]",
+    "nl": "USB-station is [[state]]",
+    "de": "USB-Laufwerk ist [[state]]",
+    "no": "USB-stasjon er [[state]]"
+  },
   "tokens": [
     {
-      "id": "state",
-      "name": "State",
+      "name": "state",
       "type": "string",
       "title": {
         "en": "State",
         "nl": "Status",
-        "de": "Status",
-        "no": "Status"
-      }
+        "de": "Zustand",
+        "no": "Tilstand"
+      },
+      "example": "inserted"
     }
   ],
   "args": [

@@ -6,10 +6,19 @@ const PrinterDevice = require('../../lib/PrinterDevice');
 const { SDCP_CMD } = require('../../lib/SDCPCommands');
 const CapabilityMapper = require('../../lib/CapabilityMapper');
 
+// 1x1 transparent PNG fallback buffer to prevent Homey decoding errors when idle
+const FALLBACK_THUMBNAIL_BUFFER = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAAElFTkSuQmCC',
+  'base64',
+);
+
 class ElegooCCDevice extends PrinterDevice {
   async onInit() {
     await super.onInit();
     this.log(`Elegoo Centauri Carbon device initialized at ${this.host}`);
+
+    this._lastTaskId = null;
+    this.thumbnailBuffer = null;
 
     this.registerCamera().catch(this.error);
     this._registerListeners();
@@ -101,14 +110,14 @@ class ElegooCCDevice extends PrinterDevice {
           .catch((e) => this.error('Camera: initial update() FAILED:', e.message));
       }, 3000);
 
-      // Thumbnail Preview Image
+      // Thumbnail Preview Image (with fallback buffer to prevent decoder errors)
       this.thumbnailImage = await this.homey.images.createImage();
       this.thumbnailImage.setStream(async (stream) => {
         const snapshot = new Duplex();
         snapshot._read = () => {};
-        if (this.thumbnailBuffer && this.thumbnailBuffer.length > 0) {
-          snapshot.push(this.thumbnailBuffer);
-        }
+        const buf =
+          this.thumbnailBuffer && this.thumbnailBuffer.length > 0 ? this.thumbnailBuffer : FALLBACK_THUMBNAIL_BUFFER;
+        snapshot.push(buf);
         snapshot.push(null);
         return snapshot.pipe(stream);
       });
@@ -116,6 +125,8 @@ class ElegooCCDevice extends PrinterDevice {
       await this.setCameraImage('elegoo_thumbnail', 'Print Preview', this.thumbnailImage)
         .then(() => this.log('Camera: Print Preview Thumbnail registered OK'))
         .catch((e) => this.error('Camera: setCameraImage Thumbnail FAILED:', e.message));
+
+      this.thumbnailImage.update().catch(() => {});
 
       // Refresh every 5 seconds (better for Web UI fallback)
       this._cameraInterval = this.homey.setInterval(() => {
@@ -221,7 +232,14 @@ class ElegooCCDevice extends PrinterDevice {
       return this.client.sendCommand(SDCP_CMD.STOP_PRINT, {});
     });
     this.registerCapabilityListener('button.home', async () => {
-      this.log('UI: Home All Axes');
+      this.log('UI: Home All Axes (CMD 402)');
+      this._isHoming = true;
+      this.setCapabilityValue('printer_status', 'Homing').catch(() => {});
+      if (this._homingTimeout) this.homey.clearTimeout(this._homingTimeout);
+      this._homingTimeout = this.homey.setTimeout(() => {
+        this._isHoming = false;
+        this.updateCapabilities({});
+      }, 25000);
       return this.client.sendCommand(SDCP_CMD.CC_HOME_ALL, { Axis: 'XYZ' });
     });
     this.registerCapabilityListener('button.skip_preheat', async () => {
@@ -295,6 +313,13 @@ class ElegooCCDevice extends PrinterDevice {
     });
     flow.getActionCard('home_axes').registerRunListener(async (args) => {
       this.log(`Action: Home Axes (${args.axes})`);
+      this._isHoming = true;
+      this.setCapabilityValue('printer_status', 'Homing').catch(() => {});
+      if (this._homingTimeout) this.homey.clearTimeout(this._homingTimeout);
+      this._homingTimeout = this.homey.setTimeout(() => {
+        this._isHoming = false;
+        this.updateCapabilities({});
+      }, 25000);
       return this.client.sendCommand(402, { Axis: args.axes });
     });
     flow.getActionCard('set_speed_preset').registerRunListener(async (args) => {
@@ -310,8 +335,9 @@ class ElegooCCDevice extends PrinterDevice {
       return this.client.sendCommand(403, { TargetFanSpeed: { [fanKey]: args.percentage } });
     });
     flow.getActionCard('set_chamber_light').registerRunListener(async (args) => {
-      this.log(`Action: Set Light (${args.state})`);
-      return this.client.sendCommand(403, { LightStatus: { SecondLight: args.state ? 1 : 0 } });
+      const isOn = args.state === 'on' || args.state === true || args.state === 1;
+      this.log(`Action: Set Chamber Light (${isOn ? 'ON' : 'OFF'})`);
+      return this.client.sendCommand(403, { LightStatus: { SecondLight: isOn ? 1 : 0 } });
     });
   }
 
@@ -340,23 +366,61 @@ class ElegooCCDevice extends PrinterDevice {
   updateCapabilities(rawAttr) {
     if (!rawAttr) return;
 
-    // Normalize data: Flatten nested structures into a unified object.
-    // Order of precedence: Root > Data > Status > Attributes
+    // Deep drill-down normalization for all SDCP packet structures
+    const statusObj =
+      rawAttr.Data?.Data?.Status ||
+      rawAttr.Data?.Status ||
+      (rawAttr.Status && typeof rawAttr.Status === 'object' && !Array.isArray(rawAttr.Status)
+        ? rawAttr.Status
+        : null) ||
+      {};
+
+    const attrObj =
+      rawAttr.Data?.Data?.Attributes ||
+      rawAttr.Data?.Attributes ||
+      (rawAttr.Attributes && typeof rawAttr.Attributes === 'object' ? rawAttr.Attributes : null) ||
+      {};
+
+    const dataObj =
+      (rawAttr.Data?.Data && typeof rawAttr.Data.Data === 'object' ? rawAttr.Data.Data : null) ||
+      (rawAttr.Data && typeof rawAttr.Data === 'object' ? rawAttr.Data : null) ||
+      {};
+
     const attr = {
-      ...(typeof rawAttr.Attributes === 'object' ? rawAttr.Attributes : {}),
-      ...(typeof rawAttr.Status === 'object' && !Array.isArray(rawAttr.Status) ? rawAttr.Status : {}),
-      ...(typeof rawAttr.Data === 'object' ? rawAttr.Data : {}),
+      ...attrObj,
+      ...statusObj,
+      ...dataObj,
       ...(typeof rawAttr === 'object' ? rawAttr : {}),
+      ...(statusObj.CurrentStatus !== undefined ? { CurrentStatus: statusObj.CurrentStatus } : {}),
+      ...(statusObj.PrintInfo ? { PrintInfo: statusObj.PrintInfo } : {}),
+      ...(statusObj.DevicesStatus ? { DevicesStatus: statusObj.DevicesStatus } : {}),
+      ...(statusObj.LightStatus ? { LightStatus: statusObj.LightStatus } : {}),
+      ...(statusObj.CurrentFanSpeed ? { CurrentFanSpeed: statusObj.CurrentFanSpeed } : {}),
+      ...(statusObj.CurrenCoord !== undefined ? { CurrenCoord: statusObj.CurrenCoord } : {}),
+      ...(statusObj.TempOfNozzle !== undefined ? { TempOfNozzle: statusObj.TempOfNozzle } : {}),
+      ...(statusObj.TempOfHotbed !== undefined ? { TempOfHotbed: statusObj.TempOfHotbed } : {}),
+      ...(statusObj.TempOfBox !== undefined ? { TempOfBox: statusObj.TempOfBox } : {}),
+      ...(statusObj.ZOffset !== undefined ? { ZOffset: statusObj.ZOffset } : {}),
     };
 
-    // Flatten one more level for Data.Status if it exists as an object
-    if (rawAttr.Data && typeof rawAttr.Data.Status === 'object' && !Array.isArray(rawAttr.Data.Status)) {
-      Object.assign(attr, rawAttr.Data.Status);
+    // Detect coordinate motion while idle (e.g. manual homing or jogging from printer touchscreen)
+    const currentCoord = attr.CurrenCoord;
+    if (currentCoord && typeof currentCoord === 'string') {
+      if (this._prevCoord && this._prevCoord !== currentCoord && (!attr.PrintInfo || !attr.PrintInfo.Filename)) {
+        if (!this._isHoming) {
+          this.log(
+            `[Motion] Detected coordinate change (${this._prevCoord} -> ${currentCoord}) during standby, setting status to Homing`,
+          );
+          this._isHoming = true;
+          if (this._homingTimeout) this.homey.clearTimeout(this._homingTimeout);
+          this._homingTimeout = this.homey.setTimeout(() => {
+            this._isHoming = false;
+            this.updateCapabilities({});
+          }, 10000);
+        }
+      }
+      this._prevCoord = currentCoord;
     }
-
-    // VERBOSE LOGGING for deep-dive diagnostics
-    const sRaw = attr.Status || attr.CurrentStatus;
-    this.log(`[SDCP Data] Status: ${JSON.stringify(sRaw)}, PrintStatus: ${attr.PrintInfo?.Status}`);
 
     // Check for status changes (prioritized logic)
     const oldStatus = this.getCapabilityValue('printer_status');
@@ -375,9 +439,18 @@ class ElegooCCDevice extends PrinterDevice {
     CapabilityMapper.updateAdvancedInfo(this, attr);
     CapabilityMapper.processSensorTransitions(this, attr);
 
+    // Auto-fetch thumbnail if new TaskId is detected
+    const taskId = attr.PrintInfo?.TaskId || attr.TaskId;
+    if (taskId && taskId !== this._lastTaskId) {
+      this._lastTaskId = taskId;
+      this.log(`New TaskId detected (${taskId}), requesting task details with thumbnail (CMD 321)`);
+      this.client.sendCommand(SDCP_CMD.GET_HISTORY_DETAIL, { Id: [taskId] }).catch(() => {});
+    }
+
     // Thumbnail
-    if (attr.Thumbnail && attr.Thumbnail.length > 50) {
-      this._handleThumbnail(attr.Thumbnail);
+    const thumbData = attr.Thumbnail || attr.thumbnail || attr.TaskDetail?.Thumbnail || attr.TaskDetail?.thumbnail;
+    if (thumbData && thumbData.length > 20) {
+      this._handleThumbnail(thumbData);
     }
 
     const { progress, layer } = CapabilityMapper.updatePrintInfo(this, attr);
@@ -392,13 +465,40 @@ class ElegooCCDevice extends PrinterDevice {
     });
   }
 
-  _handleThumbnail(base64Data) {
-    if (!this.thumbnailImage) return;
+  _handleThumbnail(thumbData) {
+    if (!this.thumbnailImage || !thumbData) return;
     try {
-      this.thumbnailBuffer = Buffer.from(base64Data, 'base64');
-      this.thumbnailImage.update().catch(this.error);
+      if (typeof thumbData === 'string') {
+        if (thumbData.startsWith('http://') || thumbData.startsWith('https://')) {
+          http
+            .get(thumbData, (res) => {
+              const chunks = [];
+              res.on('data', (c) => chunks.push(c));
+              res.on('end', () => {
+                if (chunks.length > 0) {
+                  this.thumbnailBuffer = Buffer.concat(chunks);
+                  this.thumbnailImage.update().catch(this.error);
+                }
+              });
+            })
+            .on('error', (e) => this.error('Error fetching thumbnail URL:', e.message));
+        } else {
+          const cleanBase64 = thumbData.replace(/^data:image\/\w+;base64,/, '');
+          this.thumbnailBuffer = Buffer.from(cleanBase64, 'base64');
+          this.thumbnailImage.update().catch(this.error);
+        }
+      }
     } catch (err) {
       this.error('Error updating thumbnail:', err.message);
+    }
+  }
+
+  onDeleted() {
+    this.log('Device being deleted or app stopped, cleaning up...');
+    if (this._cameraInterval) this.homey.clearInterval(this._cameraInterval);
+    if (this._homingTimeout) this.homey.clearTimeout(this._homingTimeout);
+    if (this.client) {
+      this.client.disconnect();
     }
   }
 }

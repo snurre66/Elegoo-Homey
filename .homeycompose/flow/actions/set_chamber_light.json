@@ -1,9 +1,9 @@
 {
   "id": "set_chamber_light",
   "title": {
-    "en": "Set Chamber Light",
+    "en": "Set chamber light",
     "nl": "Kamerverlichting instellen",
-    "de": "Kammerbeleuchtung setzen",
+    "de": "Kammerbeleuchtung schalten",
     "no": "Sett kammerlys"
   },
   "titleFormatted": {
@@ -20,13 +20,27 @@
     },
     {
       "name": "state",
-      "type": "checkbox",
-      "label": {
-        "en": "Turn On",
-        "nl": "Aan",
-        "de": "Ein",
-        "no": "På"
-      }
+      "type": "dropdown",
+      "values": [
+        {
+          "id": "on",
+          "label": {
+            "en": "on",
+            "nl": "aan",
+            "de": "ein",
+            "no": "på"
+          }
+        },
+        {
+          "id": "off",
+          "label": {
+            "en": "off",
+            "nl": "uit",
+            "de": "aus",
+            "no": "av"
+          }
+        }
+      ]
     }
   ]
 }

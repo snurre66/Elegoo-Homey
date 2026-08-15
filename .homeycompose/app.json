@@ -12,16 +12,16 @@
     "de": "Integrieren Sie Elegoo 3D-Drucker mühelos in Ihr Smart Home über das lokale SDCP-Protokoll.",
     "no": "Integrer Elegoo 3D-skrivere enkelt i ditt smarthjem via den lokale SDCP-protokollen."
   },
-  "version": "1.2.1",
+  "version": "1.2.3",
   "sdk": 3,
   "author": {
     "name": "Thomas Veivåg",
     "email": "thomas.veivag@gmail.com"
   },
   "support": "https://community.homey.app/",
-  "source": "https://github.com/snurre66/elegoo-homey",
+  "source": "https://github.com/snurre66/ElegooCC_Homey",
   "bugs": {
-    "url": "https://github.com/snurre66/elegoo-homey/issues"
+    "url": "https://github.com/snurre66/ElegooCC_Homey/issues"
   },
   "contributing": {
     "donate": {

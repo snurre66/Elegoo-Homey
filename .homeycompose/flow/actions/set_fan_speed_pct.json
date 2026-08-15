@@ -1,16 +1,16 @@
 {
   "id": "set_fan_speed_pct",
   "title": {
-    "en": "Set Fan Speed",
+    "en": "Set fan speed",
     "nl": "Ventilatorsnelheid instellen",
     "de": "Lüftergeschwindigkeit setzen",
     "no": "Sett viftehastighet"
   },
   "titleFormatted": {
     "en": "Set [[fan]] speed to [[percentage]]%",
-    "nl": "Zet [[fan]] snelheid op [[percentage]]%",
-    "de": "Setze [[fan]]-Geschwindigkeit auf [[percentage]]%",
-    "no": "Sett [[fan]]-hastighet til [[percentage]]%"
+    "nl": "Zet snelheid van [[fan]] op [[percentage]]%",
+    "de": "Setze Geschwindigkeit von [[fan]] auf [[percentage]]%",
+    "no": "Sett hastighet for [[fan]] til [[percentage]] %"
   },
   "args": [
     {
@@ -55,7 +55,11 @@
       "name": "percentage",
       "type": "number",
       "min": 0,
-      "max": 100
+      "max": 100,
+      "placeholder": {
+        "en": "100",
+        "no": "100"
+      }
     }
   ]
 }

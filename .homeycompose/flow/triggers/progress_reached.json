@@ -4,14 +4,27 @@
     "en": "Print progress reached",
     "nl": "Afdrukvoortgang bereikt",
     "de": "Druckfortschritt erreicht",
-    "no": "Utskriftfremdrift nådd"
+    "no": "Utskriftsfremdrift nådd"
   },
   "titleFormatted": {
     "en": "Print progress reaches [[percentage]]%",
     "nl": "Afdrukvoortgang bereikt [[percentage]]%",
     "de": "Druckfortschritt erreicht [[percentage]]%",
-    "no": "Utskriftfremdrift når [[percentage]]%"
+    "no": "Utskriftsfremdrift når [[percentage]] %"
   },
+  "tokens": [
+    {
+      "name": "percentage",
+      "type": "number",
+      "title": {
+        "en": "Percentage",
+        "nl": "Percentage",
+        "de": "Prozentsatz",
+        "no": "Prosent"
+      },
+      "example": 50
+    }
+  ],
   "args": [
     {
       "type": "device",
@@ -27,10 +40,11 @@
         "de": "Prozent",
         "no": "Prosent"
       },
-      "min": 0,
+      "min": 1,
       "max": 100,
       "placeholder": {
-        "en": "50"
+        "en": "50",
+        "no": "50"
       }
     }
   ]

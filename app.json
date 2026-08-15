@@ -13,16 +13,16 @@
     "de": "Integrieren Sie Elegoo 3D-Drucker mühelos in Ihr Smart Home über das lokale SDCP-Protokoll.",
     "no": "Integrer Elegoo 3D-skrivere enkelt i ditt smarthjem via den lokale SDCP-protokollen."
   },
-  "version": "1.2.2",
+  "version": "1.2.3",
   "sdk": 3,
   "author": {
     "name": "Thomas Veivåg",
     "email": "thomas.veivag@gmail.com"
   },
   "support": "https://community.homey.app/",
-  "source": "https://github.com/snurre66/elegoo-homey",
+  "source": "https://github.com/snurre66/ElegooCC_Homey",
   "bugs": {
-    "url": "https://github.com/snurre66/elegoo-homey/issues"
+    "url": "https://github.com/snurre66/ElegooCC_Homey/issues"
   },
   "contributing": {
     "donate": {
@@ -51,11 +51,24 @@
       {
         "id": "bed_temp_reached",
         "title": {
-          "en": "Bed temperature reached",
-          "nl": "Bed-temperatuur bereikt",
-          "de": "Betttemperatur erreicht",
-          "no": "Bedtemperatur nådd"
+          "en": "Bed temperature reached target",
+          "nl": "Bed-temperatuur heeft doel bereikt",
+          "de": "Betttemperatur hat Ziel erreicht",
+          "no": "Bedtemperatur nådde målet"
         },
+        "tokens": [
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature",
+              "nl": "Temperatuur",
+              "de": "Temperatur",
+              "no": "Temperatur"
+            },
+            "example": 60
+          }
+        ],
         "args": [
           {
             "type": "device",
@@ -118,8 +131,21 @@
           "en": "Chamber temperature reaches [[temperature]]°C",
           "nl": "Kamertemperatuur bereikt [[temperature]]°C",
           "de": "Kammertemperatur erreicht [[temperature]]°C",
-          "no": "Kammertemperatur når [[temperature]]°C"
+          "no": "Kammertemperaturen når [[temperature]] °C"
         },
+        "tokens": [
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature",
+              "nl": "Temperatuur",
+              "de": "Temperatur",
+              "no": "Temperatur"
+            },
+            "example": 45
+          }
+        ],
         "args": [
           {
             "type": "device",
@@ -138,7 +164,8 @@
             "min": 0,
             "max": 100,
             "placeholder": {
-              "en": "40"
+              "en": "40",
+              "no": "40"
             }
           }
         ]
@@ -151,17 +178,23 @@
           "de": "Türstatus geändert",
           "no": "Dørstatus endret"
         },
+        "titleFormatted": {
+          "en": "Door is [[state]]",
+          "nl": "Deur is [[state]]",
+          "de": "Tür ist [[state]]",
+          "no": "Døren er [[state]]"
+        },
         "tokens": [
           {
-            "id": "state",
-            "name": "State",
+            "name": "state",
             "type": "string",
             "title": {
               "en": "State",
               "nl": "Status",
-              "de": "Status",
-              "no": "Status"
-            }
+              "de": "Zustand",
+              "no": "Tilstand"
+            },
+            "example": "opened"
           }
         ],
         "args": [
@@ -220,11 +253,24 @@
       {
         "id": "fw_update_available",
         "title": {
-          "en": "Firmware Update Available",
+          "en": "Firmware update available",
           "nl": "Firmware-update beschikbaar",
           "de": "Firmware-Update verfügbar",
           "no": "Fastvareoppdatering tilgjengelig"
         },
+        "tokens": [
+          {
+            "name": "version",
+            "type": "string",
+            "title": {
+              "en": "Version",
+              "nl": "Versie",
+              "de": "Version",
+              "no": "Versjon"
+            },
+            "example": "V1.4.46"
+          }
+        ],
         "args": [
           {
             "type": "device",
@@ -242,11 +288,24 @@
           "no": "Lag nådd"
         },
         "titleFormatted": {
-          "en": "Layer reached [[layer]]",
-          "nl": "Laag bereikt [[layer]]",
-          "de": "Schicht erreicht [[layer]]",
-          "no": "Lag nådd [[layer]]"
+          "en": "Print reaches layer [[layer]]",
+          "nl": "Afdruk bereikt laag [[layer]]",
+          "de": "Druck erreicht Schicht [[layer]]",
+          "no": "Utskrift når lag [[layer]]"
         },
+        "tokens": [
+          {
+            "name": "layer",
+            "type": "number",
+            "title": {
+              "en": "Layer",
+              "nl": "Laag",
+              "de": "Schicht",
+              "no": "Lag"
+            },
+            "example": 50
+          }
+        ],
         "args": [
           {
             "type": "device",
@@ -257,14 +316,15 @@
             "name": "layer",
             "type": "number",
             "title": {
-              "en": "Layer Number",
+              "en": "Layer number",
               "nl": "Laagnummer",
               "de": "Schichtnummer",
               "no": "Lagnummer"
             },
-            "min": 0,
+            "min": 1,
             "placeholder": {
-              "en": "100"
+              "en": "50",
+              "no": "50"
             }
           }
         ]
@@ -272,7 +332,7 @@
       {
         "id": "motors_status_changed",
         "title": {
-          "en": "Motor Status Changed",
+          "en": "Motor status changed",
           "nl": "Motorstatus gewijzigd",
           "de": "Motorstatus geändert",
           "no": "Motorstatus endret"
@@ -281,7 +341,7 @@
           "en": "Motors become [[state]]",
           "nl": "Motoren worden [[state]]",
           "de": "Motoren werden [[state]]",
-          "no": "Motorer blir [[state]]"
+          "no": "Motorene blir [[state]]"
         },
         "args": [
           {
@@ -296,15 +356,19 @@
               {
                 "id": "engaged",
                 "label": {
-                  "en": "Engaged",
-                  "no": "Aktivert"
+                  "en": "engaged",
+                  "nl": "ingeschakeld",
+                  "de": "aktiviert",
+                  "no": "låst (aktivert)"
                 }
               },
               {
                 "id": "disengaged",
                 "label": {
-                  "en": "Disengaged / Free",
-                  "no": "Deaktivert / Fri"
+                  "en": "disengaged",
+                  "nl": "vrijgegeven",
+                  "de": "freigegeben",
+                  "no": "frigjort (deaktivert)"
                 }
               }
             ]
@@ -314,11 +378,24 @@
       {
         "id": "nozzle_temp_reached",
         "title": {
-          "en": "Nozzle temperature reached",
-          "nl": "Nozzle-temperatuur bereikt",
-          "de": "Düsentemperatur erreicht",
-          "no": "Dysetemperatur nådd"
+          "en": "Nozzle temperature reached target",
+          "nl": "Nozzle-temperatuur heeft doel bereikt",
+          "de": "Düsentemperatur hat Ziel erreicht",
+          "no": "Dysetemperatur nådde målet"
         },
+        "tokens": [
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature",
+              "nl": "Temperatuur",
+              "de": "Temperatur",
+              "no": "Temperatur"
+            },
+            "example": 220
+          }
+        ],
         "args": [
           {
             "type": "device",
@@ -445,14 +522,27 @@
           "en": "Print progress reached",
           "nl": "Afdrukvoortgang bereikt",
           "de": "Druckfortschritt erreicht",
-          "no": "Utskriftfremdrift nådd"
+          "no": "Utskriftsfremdrift nådd"
         },
         "titleFormatted": {
           "en": "Print progress reaches [[percentage]]%",
           "nl": "Afdrukvoortgang bereikt [[percentage]]%",
           "de": "Druckfortschritt erreicht [[percentage]]%",
-          "no": "Utskriftfremdrift når [[percentage]]%"
+          "no": "Utskriftsfremdrift når [[percentage]] %"
         },
+        "tokens": [
+          {
+            "name": "percentage",
+            "type": "number",
+            "title": {
+              "en": "Percentage",
+              "nl": "Percentage",
+              "de": "Prozentsatz",
+              "no": "Prosent"
+            },
+            "example": 50
+          }
+        ],
         "args": [
           {
             "type": "device",
@@ -468,10 +558,11 @@
               "de": "Prozent",
               "no": "Prosent"
             },
-            "min": 0,
+            "min": 1,
             "max": 100,
             "placeholder": {
-              "en": "50"
+              "en": "50",
+              "no": "50"
             }
           }
         ]
@@ -513,17 +604,23 @@
           "de": "USB-Laufwerkstatus geändert",
           "no": "USB-stasjonsstatus endret"
         },
+        "titleFormatted": {
+          "en": "USB drive is [[state]]",
+          "nl": "USB-station is [[state]]",
+          "de": "USB-Laufwerk ist [[state]]",
+          "no": "USB-stasjon er [[state]]"
+        },
         "tokens": [
           {
-            "id": "state",
-            "name": "State",
+            "name": "state",
             "type": "string",
             "title": {
               "en": "State",
               "nl": "Status",
-              "de": "Status",
-              "no": "Status"
-            }
+              "de": "Zustand",
+              "no": "Tilstand"
+            },
+            "example": "inserted"
           }
         ],
         "args": [
@@ -653,16 +750,16 @@
       {
         "id": "home_axes",
         "title": {
-          "en": "Home Axes",
-          "nl": "Assen home",
-          "de": "Achsen homen",
-          "no": "Hjem akser"
+          "en": "Home axes",
+          "nl": "Assen homen",
+          "de": "Achsen referenzieren",
+          "no": "Kjør akser til hjemposisjon"
         },
         "titleFormatted": {
           "en": "Home [[axes]]",
-          "nl": "[[axes]] home",
-          "de": "[[axes]] homen",
-          "no": "Hjem [[axes]]"
+          "nl": "Zet [[axes]] naar home-positie",
+          "de": "Fahre [[axes]] zur Home-Position",
+          "no": "Kjør [[axes]] til hjemposisjon"
         },
         "args": [
           {
@@ -677,16 +774,16 @@
               {
                 "id": "XYZ",
                 "label": {
-                  "en": "All (XYZ)",
-                  "nl": "Alle (XYZ)",
-                  "de": "Alle (XYZ)",
-                  "no": "Alle (XYZ)"
+                  "en": "All axes (XYZ)",
+                  "nl": "Alle assen (XYZ)",
+                  "de": "Alle Achsen (XYZ)",
+                  "no": "Alle akser (XYZ)"
                 }
               },
               {
                 "id": "X",
                 "label": {
-                  "en": "X Axis",
+                  "en": "X axis",
                   "nl": "X-as",
                   "de": "X-Achse",
                   "no": "X-akse"
@@ -695,7 +792,7 @@
               {
                 "id": "Y",
                 "label": {
-                  "en": "Y Axis",
+                  "en": "Y axis",
                   "nl": "Y-as",
                   "de": "Y-Achse",
                   "no": "Y-akse"
@@ -704,7 +801,7 @@
               {
                 "id": "Z",
                 "label": {
-                  "en": "Z Axis",
+                  "en": "Z axis",
                   "nl": "Z-as",
                   "de": "Z-Achse",
                   "no": "Z-akse"
@@ -787,9 +884,9 @@
       {
         "id": "set_chamber_light",
         "title": {
-          "en": "Set Chamber Light",
+          "en": "Set chamber light",
           "nl": "Kamerverlichting instellen",
-          "de": "Kammerbeleuchtung setzen",
+          "de": "Kammerbeleuchtung schalten",
           "no": "Sett kammerlys"
         },
         "titleFormatted": {
@@ -806,29 +903,43 @@
           },
           {
             "name": "state",
-            "type": "checkbox",
-            "label": {
-              "en": "Turn On",
-              "nl": "Aan",
-              "de": "Ein",
-              "no": "På"
-            }
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "on",
+                "label": {
+                  "en": "on",
+                  "nl": "aan",
+                  "de": "ein",
+                  "no": "på"
+                }
+              },
+              {
+                "id": "off",
+                "label": {
+                  "en": "off",
+                  "nl": "uit",
+                  "de": "aus",
+                  "no": "av"
+                }
+              }
+            ]
           }
         ]
       },
       {
         "id": "set_fan_speed_pct",
         "title": {
-          "en": "Set Fan Speed",
+          "en": "Set fan speed",
           "nl": "Ventilatorsnelheid instellen",
           "de": "Lüftergeschwindigkeit setzen",
           "no": "Sett viftehastighet"
         },
         "titleFormatted": {
           "en": "Set [[fan]] speed to [[percentage]]%",
-          "nl": "Zet [[fan]] snelheid op [[percentage]]%",
-          "de": "Setze [[fan]]-Geschwindigkeit auf [[percentage]]%",
-          "no": "Sett [[fan]]-hastighet til [[percentage]]%"
+          "nl": "Zet snelheid van [[fan]] op [[percentage]]%",
+          "de": "Setze Geschwindigkeit von [[fan]] auf [[percentage]]%",
+          "no": "Sett hastighet for [[fan]] til [[percentage]] %"
         },
         "args": [
           {
@@ -873,23 +984,27 @@
             "name": "percentage",
             "type": "number",
             "min": 0,
-            "max": 100
+            "max": 100,
+            "placeholder": {
+              "en": "100",
+              "no": "100"
+            }
           }
         ]
       },
       {
         "id": "set_speed_preset",
         "title": {
-          "en": "Set Speed Preset",
+          "en": "Set speed preset",
           "nl": "Snelheidsvoorinstelling instellen",
-          "de": "Geschwindigkeits-Preset setzen",
-          "no": "Angi hastighetsforinnstilling"
+          "de": "Geschwindigkeitsprofil setzen",
+          "no": "Sett hastighetsforvalg"
         },
         "titleFormatted": {
-          "en": "Set speed to [[preset]]%",
-          "nl": "Zet snelheid op [[preset]]%",
-          "de": "Geschwindigkeit auf [[preset]]% setzen",
-          "no": "Sett hastighet til [[preset]]%"
+          "en": "Set speed preset to [[preset]]",
+          "nl": "Zet snelheidsvoorinstelling op [[preset]]",
+          "de": "Setze Geschwindigkeitsprofil auf [[preset]]",
+          "no": "Sett hastighetsforvalg til [[preset]]"
         },
         "args": [
           {
@@ -907,7 +1022,7 @@
                   "en": "Silent (50%)",
                   "nl": "Stil (50%)",
                   "de": "Leise (50%)",
-                  "no": "Stille (50%)"
+                  "no": "Stille (50 %)"
                 }
               },
               {
@@ -916,7 +1031,7 @@
                   "en": "Balanced (100%)",
                   "nl": "Gebalanceerd (100%)",
                   "de": "Ausgeglichen (100%)",
-                  "no": "Balansert (100%)"
+                  "no": "Balansert (100 %)"
                 }
               },
               {
@@ -925,7 +1040,7 @@
                   "en": "Sport (130%)",
                   "nl": "Sport (130%)",
                   "de": "Sport (130%)",
-                  "no": "Sport (130%)"
+                  "no": "Sport (130 %)"
                 }
               },
               {
@@ -934,7 +1049,7 @@
                   "en": "Ludicrous (160%)",
                   "nl": "Absurd (160%)",
                   "de": "Absurd (160%)",
-                  "no": "Galskap (160%)"
+                  "no": "Galskap (160 %)"
                 }
               }
             ]

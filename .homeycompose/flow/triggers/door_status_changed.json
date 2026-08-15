@@ -6,17 +6,23 @@
     "de": "Türstatus geändert",
     "no": "Dørstatus endret"
   },
+  "titleFormatted": {
+    "en": "Door is [[state]]",
+    "nl": "Deur is [[state]]",
+    "de": "Tür ist [[state]]",
+    "no": "Døren er [[state]]"
+  },
   "tokens": [
     {
-      "id": "state",
-      "name": "State",
+      "name": "state",
       "type": "string",
       "title": {
         "en": "State",
         "nl": "Status",
-        "de": "Status",
-        "no": "Status"
-      }
+        "de": "Zustand",
+        "no": "Tilstand"
+      },
+      "example": "opened"
     }
   ],
   "args": [

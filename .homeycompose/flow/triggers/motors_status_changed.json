@@ -1,7 +1,7 @@
 {
   "id": "motors_status_changed",
   "title": {
-    "en": "Motor Status Changed",
+    "en": "Motor status changed",
     "nl": "Motorstatus gewijzigd",
     "de": "Motorstatus geändert",
     "no": "Motorstatus endret"
@@ -10,7 +10,7 @@
     "en": "Motors become [[state]]",
     "nl": "Motoren worden [[state]]",
     "de": "Motoren werden [[state]]",
-    "no": "Motorer blir [[state]]"
+    "no": "Motorene blir [[state]]"
   },
   "args": [
     {
@@ -25,15 +25,19 @@
         {
           "id": "engaged",
           "label": {
-            "en": "Engaged",
-            "no": "Aktivert"
+            "en": "engaged",
+            "nl": "ingeschakeld",
+            "de": "aktiviert",
+            "no": "låst (aktivert)"
           }
         },
         {
           "id": "disengaged",
           "label": {
-            "en": "Disengaged / Free",
-            "no": "Deaktivert / Fri"
+            "en": "disengaged",
+            "nl": "vrijgegeven",
+            "de": "freigegeben",
+            "no": "frigjort (deaktivert)"
           }
         }
       ]

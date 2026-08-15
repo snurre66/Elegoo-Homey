@@ -25,6 +25,7 @@ Then fill in your actual values:
 ## Publishing
 
 Run the safe publish script. It will:
+
 1. Read `.secret.json` and inject your real info into `app.json` and `package.json`
 2. Run `npx homey app publish`
 3. Automatically restore the `<HIDDEN>` placeholders when done

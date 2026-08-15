@@ -1,11 +1,24 @@
 {
   "id": "nozzle_temp_reached",
   "title": {
-    "en": "Nozzle temperature reached",
-    "nl": "Nozzle-temperatuur bereikt",
-    "de": "Düsentemperatur erreicht",
-    "no": "Dysetemperatur nådd"
+    "en": "Nozzle temperature reached target",
+    "nl": "Nozzle-temperatuur heeft doel bereikt",
+    "de": "Düsentemperatur hat Ziel erreicht",
+    "no": "Dysetemperatur nådde målet"
   },
+  "tokens": [
+    {
+      "name": "temperature",
+      "type": "number",
+      "title": {
+        "en": "Temperature",
+        "nl": "Temperatuur",
+        "de": "Temperatur",
+        "no": "Temperatur"
+      },
+      "example": 220
+    }
+  ],
   "args": [
     {
       "type": "device",

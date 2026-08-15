@@ -1,11 +1,24 @@
 {
   "id": "fw_update_available",
   "title": {
-    "en": "Firmware Update Available",
+    "en": "Firmware update available",
     "nl": "Firmware-update beschikbaar",
     "de": "Firmware-Update verfügbar",
     "no": "Fastvareoppdatering tilgjengelig"
   },
+  "tokens": [
+    {
+      "name": "version",
+      "type": "string",
+      "title": {
+        "en": "Version",
+        "nl": "Versie",
+        "de": "Version",
+        "no": "Versjon"
+      },
+      "example": "V1.4.46"
+    }
+  ],
   "args": [
     {
       "type": "device",
