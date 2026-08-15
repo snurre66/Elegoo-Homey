@@ -1,0 +1,13 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Error Reason",
+    "nl": "Foutreden",
+    "de": "Fehlergrund",
+    "no": "Feilårsak"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/icons/error.svg"
+}

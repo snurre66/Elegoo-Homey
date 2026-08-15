@@ -1,0 +1,37 @@
+{
+  "title": {
+    "en": "Send G-code command",
+    "nl": "Stuur G-code commando",
+    "de": "G-Code-Befehl senden",
+    "no": "Send G-kode-kommando"
+  },
+  "titleFormatted": {
+    "en": "Send G-code [[gcode]]",
+    "nl": "Stuur G-code [[gcode]]",
+    "de": "Sende G-Code [[gcode]]",
+    "no": "Send G-kode [[gcode]]"
+  },
+  "hint": {
+    "en": "Sends a custom G-code or Klipper command directly to the printer.",
+    "nl": "Stuurt een aangepast G-code- of Klipper-commando rechtstreeks naar de printer.",
+    "de": "Sendet einen benutzerdefinierten G-Code- oder Klipper-Befehl direkt an den Drucker.",
+    "no": "Sender en egendefinert G-kode- eller Klipper-kommando direkte til skriveren."
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=elegoo_cc"
+    },
+    {
+      "name": "gcode",
+      "type": "text",
+      "placeholder": {
+        "en": "e.g. M104 S200 or G28",
+        "no": "f.eks. M104 S200 eller G28",
+        "de": "z.B. M104 S200 oder G28",
+        "nl": "bijv. M104 S200 of G28"
+      }
+    }
+  ]
+}

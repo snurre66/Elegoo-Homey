@@ -13,7 +13,7 @@
     "de": "Integrieren Sie Elegoo 3D-Drucker mühelos in Ihr Smart Home über das lokale SDCP-Protokoll.",
     "no": "Integrer Elegoo 3D-skrivere enkelt i ditt smarthjem via den lokale SDCP-protokollen."
   },
-  "version": "1.1.6",
+  "version": "1.2.0",
   "sdk": 3,
   "author": {
     "name": "Thomas Veivåg",
@@ -747,6 +747,44 @@
         ]
       },
       {
+        "title": {
+          "en": "Send G-code command",
+          "nl": "Stuur G-code commando",
+          "de": "G-Code-Befehl senden",
+          "no": "Send G-kode-kommando"
+        },
+        "titleFormatted": {
+          "en": "Send G-code [[gcode]]",
+          "nl": "Stuur G-code [[gcode]]",
+          "de": "Sende G-Code [[gcode]]",
+          "no": "Send G-kode [[gcode]]"
+        },
+        "hint": {
+          "en": "Sends a custom G-code or Klipper command directly to the printer.",
+          "nl": "Stuurt een aangepast G-code- of Klipper-commando rechtstreeks naar de printer.",
+          "de": "Sendet einen benutzerdefinierten G-Code- oder Klipper-Befehl direkt an den Drucker.",
+          "no": "Sender en egendefinert G-kode- eller Klipper-kommando direkte til skriveren."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=elegoo_cc"
+          },
+          {
+            "name": "gcode",
+            "type": "text",
+            "placeholder": {
+              "en": "e.g. M104 S200 or G28",
+              "no": "f.eks. M104 S200 eller G28",
+              "de": "z.B. M104 S200 oder G28",
+              "nl": "bijv. M104 S200 of G28"
+            }
+          }
+        ],
+        "id": "send_gcode"
+      },
+      {
         "id": "set_chamber_light",
         "title": {
           "en": "Set Chamber Light",
@@ -902,6 +940,62 @@
             ]
           }
         ]
+      },
+      {
+        "title": {
+          "en": "Skip preheating",
+          "nl": "Voorverwarmen overslaan",
+          "de": "Vorheizen überspringen",
+          "no": "Hopp over forvarming"
+        },
+        "titleFormatted": {
+          "en": "Skip preheating",
+          "nl": "Voorverwarmen overslaan",
+          "de": "Vorheizen überspringen",
+          "no": "Hopp over forvarming"
+        },
+        "hint": {
+          "en": "Skips the current preheating phase and starts the print immediately.",
+          "nl": "Slaat de huidige voorverwarmingsfase over en start het printen onmiddellijk.",
+          "de": "Überspringt die aktuelle Vorheizphase und startet den Druck sofort.",
+          "no": "Hopper over gjeldende forvarmingsfase og starter utskriften umiddelbart."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=elegoo_cc"
+          }
+        ],
+        "id": "skip_preheat"
+      },
+      {
+        "title": {
+          "en": "Stop material feeding",
+          "nl": "Materiaaldoorvoer stoppen",
+          "de": "Materialzufuhr stoppen",
+          "no": "Stopp filamentmating"
+        },
+        "titleFormatted": {
+          "en": "Stop material feeding",
+          "nl": "Stop materiaaldoorvoer",
+          "de": "Stoppe Materialzufuhr",
+          "no": "Stopp filamentmating"
+        },
+        "hint": {
+          "en": "Stops active filament extrusion or material feeding.",
+          "nl": "Stopt actieve filamentextrusie of materiaaltoevoer.",
+          "de": "Stoppt die aktive Filamentextrusion oder Materialzufuhr.",
+          "no": "Stopper aktiv filamentekstrudering eller mating."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=elegoo_cc"
+          }
+        ],
+        "id": "stop_feeding"
       }
     ]
   },
@@ -914,108 +1008,59 @@
         "no": "Elegoo Centauri Carbon"
       },
       "class": "other",
+      "uiQuickAction": "onoff.chamberlight",
       "capabilities": [
         "printer_status",
         "print_progress",
-        "layer_progress",
         "time_left",
+        "layer_progress",
+        "current_layer",
+        "total_layers",
         "filename",
         "measure_temperature.nozzle",
         "target_temperature.nozzle",
         "measure_temperature.bed",
         "target_temperature.bed",
-        "video_stream_count",
-        "camera_enabled",
-        "motors_engaged",
-        "network_type",
         "measure_temperature",
         "onoff.chamberlight",
-        "speed_factor",
-        "extrusion_factor",
         "part_fan_speed",
         "onoff.auxfan",
         "onoff.exhaustfan",
-        "alarm_filament",
-        "alarm_contact",
-        "current_layer",
-        "total_layers",
-        "z_position",
-        "firmware_version",
-        "printer_model",
-        "ip_address",
-        "resolution",
         "onoff.boxfan",
+        "speed_factor",
+        "extrusion_factor",
         "button.pause",
         "button.resume",
         "button.stop",
         "button.home",
+        "button.skip_preheat",
+        "alarm_filament",
+        "alarm_contact",
+        "alarm_usb",
+        "error_reason",
+        "z_position",
         "x_position",
         "y_position",
         "z_offset",
-        "alarm_usb",
+        "motors_engaged",
+        "camera_enabled",
+        "video_stream_count",
+        "network_type",
+        "firmware_version",
+        "printer_model",
+        "ip_address",
         "mac_address",
+        "resolution",
         "memory_remaining"
       ],
       "capabilitiesOptions": {
-        "measure_temperature.nozzle": {
+        "printer_status": {
           "title": {
-            "en": "Current Nozzle Temp",
-            "nl": "Huidige nozzle temp",
-            "de": "Aktuelle Düsentemperatur",
-            "no": "Nåværende dysetemperatur"
+            "en": "Status",
+            "nl": "Status",
+            "de": "Status",
+            "no": "Status"
           }
-        },
-        "target_temperature.nozzle": {
-          "title": {
-            "en": "Target Nozzle",
-            "nl": "Doel nozzle",
-            "de": "Ziel-Düse",
-            "no": "Dyse set temp"
-          },
-          "min": 0,
-          "max": 300,
-          "step": 1,
-          "setable": false
-        },
-        "measure_temperature.bed": {
-          "title": {
-            "en": "Current Bed Temp",
-            "nl": "Huidige bed temp",
-            "de": "Aktuelle Betttemperatur",
-            "no": "Nåværende bed temp"
-          }
-        },
-        "target_temperature.bed": {
-          "title": {
-            "en": "Target Bed",
-            "nl": "Doel bed",
-            "de": "Ziel-Bett",
-            "no": "Bed temp"
-          },
-          "min": 0,
-          "max": 120,
-          "step": 1,
-          "setable": false
-        },
-        "measure_temperature": {
-          "title": {
-            "en": "Chamber Temperature",
-            "nl": "Kamer temperatuur",
-            "de": "Kammertemperatur",
-            "no": "Kammertemperatur"
-          }
-        },
-        "part_fan_speed": {
-          "title": {
-            "en": "Part Cooling Fan",
-            "nl": "Objectkoeler",
-            "de": "Bauteillüfter",
-            "no": "Delkjølevifte"
-          },
-          "setable": true,
-          "uiComponent": "slider",
-          "min": 0,
-          "max": 100
         },
         "print_progress": {
           "title": {
@@ -1030,7 +1075,23 @@
             "de": "%",
             "no": "%"
           },
-          "uiComponent": "slider"
+          "uiComponent": "slider",
+          "min": 0,
+          "max": 100
+        },
+        "time_left": {
+          "title": {
+            "en": "Time Remaining",
+            "nl": "Resterende tijd",
+            "de": "Verbleibende Zeit",
+            "no": "Gjenværende tid"
+          },
+          "units": {
+            "en": "min",
+            "nl": "min",
+            "de": "min",
+            "no": "min"
+          }
         },
         "layer_progress": {
           "title": {
@@ -1045,7 +1106,81 @@
             "de": "%",
             "no": "%"
           },
-          "uiComponent": "slider"
+          "uiComponent": "slider",
+          "min": 0,
+          "max": 100
+        },
+        "current_layer": {
+          "title": {
+            "en": "Current Layer",
+            "nl": "Huidige laag",
+            "de": "Aktuelle Schicht",
+            "no": "Nåværende lag"
+          }
+        },
+        "total_layers": {
+          "title": {
+            "en": "Total Layers",
+            "nl": "Totaal aantal lagen",
+            "de": "Gesamtschichten",
+            "no": "Totale lag"
+          }
+        },
+        "filename": {
+          "title": {
+            "en": "Print File",
+            "nl": "Printbestand",
+            "de": "Druckdatei",
+            "no": "Utskriftsfil"
+          }
+        },
+        "measure_temperature.nozzle": {
+          "title": {
+            "en": "Nozzle Temperature",
+            "nl": "Nozzle temperatuur",
+            "de": "Düsentemperatur",
+            "no": "Dysetemperatur"
+          }
+        },
+        "target_temperature.nozzle": {
+          "title": {
+            "en": "Target Nozzle",
+            "nl": "Doel nozzle",
+            "de": "Ziel-Düse",
+            "no": "Dyse setttemperatur"
+          },
+          "min": 0,
+          "max": 350,
+          "step": 1,
+          "setable": false
+        },
+        "measure_temperature.bed": {
+          "title": {
+            "en": "Bed Temperature",
+            "nl": "Bed temperatuur",
+            "de": "Betttemperatur",
+            "no": "Bedtemperatur"
+          }
+        },
+        "target_temperature.bed": {
+          "title": {
+            "en": "Target Bed",
+            "nl": "Doel bed",
+            "de": "Ziel-Bett",
+            "no": "Bed setttemperatur"
+          },
+          "min": 0,
+          "max": 130,
+          "step": 1,
+          "setable": false
+        },
+        "measure_temperature": {
+          "title": {
+            "en": "Chamber Temperature",
+            "nl": "Kamer temperatuur",
+            "de": "Kammertemperatur",
+            "no": "Kammertemperatur"
+          }
         },
         "onoff.chamberlight": {
           "title": {
@@ -1054,6 +1189,24 @@
             "de": "Kammerbeleuchtung",
             "no": "Kammerlys"
           }
+        },
+        "part_fan_speed": {
+          "title": {
+            "en": "Part Cooling Fan",
+            "nl": "Objectkoeler",
+            "de": "Bauteillüfter",
+            "no": "Delkjølevifte"
+          },
+          "units": {
+            "en": "%",
+            "nl": "%",
+            "de": "%",
+            "no": "%"
+          },
+          "setable": true,
+          "uiComponent": "slider",
+          "min": 0,
+          "max": 100
         },
         "onoff.auxfan": {
           "title": {
@@ -1071,12 +1224,20 @@
             "no": "Eksosvifte"
           }
         },
+        "onoff.boxfan": {
+          "title": {
+            "en": "Internal Scrubber (Box Fan)",
+            "nl": "Interne scrubber (kastventilator)",
+            "de": "Interner Wäscher (Gehäuselüfter)",
+            "no": "Intern skrubber (boksvifte)"
+          }
+        },
         "speed_factor": {
           "title": {
-            "en": "Print Speed Factor",
-            "nl": "Printsnelheidsfactor",
-            "de": "Druckgeschwindigkeitsfaktor",
-            "no": "Utskriftshastighetsfaktor"
+            "en": "Speed Factor",
+            "nl": "Snelheidsfactor",
+            "de": "Geschwindigkeitsfaktor",
+            "no": "Hastighetsfaktor"
           },
           "units": {
             "en": "%",
@@ -1107,36 +1268,28 @@
           "min": 10,
           "max": 200
         },
-        "onoff.boxfan": {
-          "title": {
-            "en": "Internal Scrubber (Box Fan)",
-            "nl": "Interne scrubber (kastventilator)",
-            "de": "Interner Wäscher (Gehäuselüfter)",
-            "no": "Intern skrubber (boksvifte)"
-          }
-        },
         "button.pause": {
           "title": {
-            "en": "Pause Program",
-            "nl": "Programma pauzeren",
-            "de": "Programm pausieren",
-            "no": "Pause Program"
+            "en": "Pause",
+            "nl": "Pauzeren",
+            "de": "Pausieren",
+            "no": "Pause"
           }
         },
         "button.resume": {
           "title": {
-            "en": "Resume Program",
-            "nl": "Programma hervatten",
-            "de": "Programm fortsetzen",
-            "no": "Gjenoppta program"
+            "en": "Resume",
+            "nl": "Hervatten",
+            "de": "Fortsetzen",
+            "no": "Gjenoppta"
           }
         },
         "button.stop": {
           "title": {
-            "en": "Cancel Program",
-            "nl": "Programma annuleren",
-            "de": "Programm abbrechen",
-            "no": "Avbryt program"
+            "en": "Cancel / Stop",
+            "nl": "Annuleren / Stoppen",
+            "de": "Abbrechen / Stoppen",
+            "no": "Avbryt / Stopp"
           }
         },
         "button.home": {
@@ -1147,36 +1300,44 @@
             "no": "Referer alle akser"
           }
         },
+        "button.skip_preheat": {
+          "title": {
+            "en": "Skip Preheating",
+            "nl": "Voorverwarmen overslaan",
+            "de": "Vorheizen überspringen",
+            "no": "Hopp over forvarming"
+          }
+        },
         "alarm_filament": {
           "title": {
-            "en": "Filament Detection Alarm",
-            "nl": "Filamentdetectie alarm",
-            "de": "Filamenterkennungsalarm",
-            "no": "Filamentdeteksjonsalarm"
+            "en": "Filament Alarm",
+            "nl": "Filament alarm",
+            "de": "Filament-Alarm",
+            "no": "Filament-alarm"
           }
         },
         "alarm_contact": {
           "title": {
-            "en": "Door Open Alarm",
-            "nl": "Deur sluit alarm",
-            "de": "Tür-Schließ-Alarm",
-            "no": "Dør åpen-alarm"
+            "en": "Door Sensor",
+            "nl": "Deursensor",
+            "de": "Türsensor",
+            "no": "Dørsensor"
           }
         },
-        "current_layer": {
+        "alarm_usb": {
           "title": {
-            "en": "Current Layer",
-            "nl": "Huidige laag",
-            "de": "Aktuelle Schicht",
-            "no": "Nåværende lag"
+            "en": "USB Disk Status",
+            "nl": "USB-schijfstatus",
+            "de": "USB-Laufwerksstatus",
+            "no": "USB-diskstatus"
           }
         },
-        "total_layers": {
+        "error_reason": {
           "title": {
-            "en": "Total Layers",
-            "nl": "Totaal aantal lagen",
-            "de": "Gesamtschichten",
-            "no": "Totale lag"
+            "en": "Error Reason",
+            "nl": "Foutreden",
+            "de": "Fehlergrund",
+            "no": "Feilårsak"
           }
         },
         "z_position": {
@@ -1191,38 +1352,6 @@
             "nl": "mm",
             "de": "mm",
             "no": "mm"
-          }
-        },
-        "firmware_version": {
-          "title": {
-            "en": "Firmware Version",
-            "nl": "Firmwareversie",
-            "de": "Firmware-Version",
-            "no": "Fastvareversjon"
-          }
-        },
-        "printer_model": {
-          "title": {
-            "en": "Printer Model",
-            "nl": "Printermodel",
-            "de": "Druckermodell",
-            "no": "Skrivermodell"
-          }
-        },
-        "ip_address": {
-          "title": {
-            "en": "Printer IP",
-            "nl": "Printer-IP",
-            "de": "Drucker-IP",
-            "no": "Skriver-IP"
-          }
-        },
-        "resolution": {
-          "title": {
-            "en": "Resolution",
-            "nl": "Resolutie",
-            "de": "Auflösung",
-            "no": "Oppløsning"
           }
         },
         "x_position": {
@@ -1267,12 +1396,60 @@
             "no": "mm"
           }
         },
-        "alarm_usb": {
+        "motors_engaged": {
           "title": {
-            "en": "USB Disk Status",
-            "nl": "USB-schijfstatus",
-            "de": "USB-Laufwerksstatus",
-            "no": "USB-diskstatus"
+            "en": "Motors Engaged",
+            "nl": "Motoren ingeschakeld",
+            "de": "Motoren aktiviert",
+            "no": "Motorer innkoblet"
+          }
+        },
+        "camera_enabled": {
+          "title": {
+            "en": "Camera Enabled",
+            "nl": "Camera ingeschakeld",
+            "de": "Kamera aktiviert",
+            "no": "Kamera aktivert"
+          }
+        },
+        "video_stream_count": {
+          "title": {
+            "en": "Active Streams",
+            "nl": "Actieve streams",
+            "de": "Aktive Streams",
+            "no": "Aktive strømmer"
+          }
+        },
+        "network_type": {
+          "title": {
+            "en": "Network Type",
+            "nl": "Netwerktype",
+            "de": "Netzwerktyp",
+            "no": "Nettverkstype"
+          }
+        },
+        "firmware_version": {
+          "title": {
+            "en": "Firmware Version",
+            "nl": "Firmwareversie",
+            "de": "Firmware-Version",
+            "no": "Fastvareversjon"
+          }
+        },
+        "printer_model": {
+          "title": {
+            "en": "Printer Model",
+            "nl": "Printermodel",
+            "de": "Druckermodell",
+            "no": "Skrivermodell"
+          }
+        },
+        "ip_address": {
+          "title": {
+            "en": "Printer IP",
+            "nl": "Printer-IP",
+            "de": "Drucker-IP",
+            "no": "Skriver-IP"
           }
         },
         "mac_address": {
@@ -1281,6 +1458,14 @@
             "nl": "Moederbord MAC",
             "de": "Mainboard-MAC",
             "no": "Hovedkort-MAC"
+          }
+        },
+        "resolution": {
+          "title": {
+            "en": "Resolution",
+            "nl": "Resolutie",
+            "de": "Auflösung",
+            "no": "Oppløsning"
           }
         },
         "memory_remaining": {
@@ -1397,6 +1582,19 @@
       "getable": true,
       "setable": false,
       "icon": "/assets/icons/layer_progress.svg"
+    },
+    "error_reason": {
+      "type": "string",
+      "title": {
+        "en": "Error Reason",
+        "nl": "Foutreden",
+        "de": "Fehlergrund",
+        "no": "Feilårsak"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/assets/icons/error.svg"
     },
     "extrusion_factor": {
       "type": "number",

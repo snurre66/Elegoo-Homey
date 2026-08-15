@@ -1,0 +1,27 @@
+{
+  "title": {
+    "en": "Skip preheating",
+    "nl": "Voorverwarmen overslaan",
+    "de": "Vorheizen überspringen",
+    "no": "Hopp over forvarming"
+  },
+  "titleFormatted": {
+    "en": "Skip preheating",
+    "nl": "Voorverwarmen overslaan",
+    "de": "Vorheizen überspringen",
+    "no": "Hopp over forvarming"
+  },
+  "hint": {
+    "en": "Skips the current preheating phase and starts the print immediately.",
+    "nl": "Slaat de huidige voorverwarmingsfase over en start het printen onmiddellijk.",
+    "de": "Überspringt die aktuelle Vorheizphase und startet den Druck sofort.",
+    "no": "Hopper over gjeldende forvarmingsfase og starter utskriften umiddelbart."
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=elegoo_cc"
+    }
+  ]
+}

@@ -95,6 +95,22 @@ class ElegooCCDevice extends PrinterDevice {
           .catch((e) => this.error('Camera: initial update() FAILED:', e.message));
       }, 3000);
 
+      // Thumbnail Preview Image
+      this.thumbnailImage = await this.homey.images.createImage();
+      this.thumbnailImage.setStream(async (stream) => {
+        const snapshot = new Duplex();
+        snapshot._read = () => {};
+        if (this.thumbnailBuffer && this.thumbnailBuffer.length > 0) {
+          snapshot.push(this.thumbnailBuffer);
+        }
+        snapshot.push(null);
+        return snapshot.pipe(stream);
+      });
+
+      await this.setCameraImage('elegoo_thumbnail', 'Print Preview', this.thumbnailImage)
+        .then(() => this.log('Camera: Print Preview Thumbnail registered OK'))
+        .catch((e) => this.error('Camera: setCameraImage Thumbnail FAILED:', e.message));
+
       // Refresh every 5 seconds (better for Web UI fallback)
       this._cameraInterval = this.homey.setInterval(() => {
         this.snapshotImage.update().catch(() => {});
@@ -112,7 +128,7 @@ class ElegooCCDevice extends PrinterDevice {
         .then(() => this.log('Camera: Live Stream registered OK'))
         .catch((e) => this.error('Camera: setCameraVideo FAILED:', e.message));
     } catch (err) {
-      this.error('Critical: Failed to register snapshot camera:', err.message);
+      this.error('Critical: Failed to register camera feeds:', err.message);
     }
   }
 
@@ -194,6 +210,10 @@ class ElegooCCDevice extends PrinterDevice {
       this.log('UI: Home All Axes');
       return this.client.sendCommand(SDCP_CMD.CC_HOME_ALL, { Axis: 'XYZ' });
     });
+    this.registerCapabilityListener('button.skip_preheat', async () => {
+      this.log('UI: Skip Preheating');
+      return this.client.sendCommand(SDCP_CMD.SKIP_PREHEAT, {});
+    });
 
     // Read-only temperature targets
     this.registerCapabilityListener('target_temperature.nozzle', async () => true);
@@ -245,6 +265,19 @@ class ElegooCCDevice extends PrinterDevice {
     flow.getActionCard('resume_print').registerRunListener(async () => {
       this.log('Action: Resume Print');
       return this.client.sendCommand(SDCP_CMD.RESUME_PRINT, {});
+    });
+    flow.getActionCard('skip_preheat').registerRunListener(async () => {
+      this.log('Action: Skip Preheating');
+      return this.client.sendCommand(SDCP_CMD.SKIP_PREHEAT, {});
+    });
+    flow.getActionCard('stop_feeding').registerRunListener(async () => {
+      this.log('Action: Stop Material Feeding');
+      return this.client.sendCommand(SDCP_CMD.STOP_FEEDING, {});
+    });
+    flow.getActionCard('send_gcode').registerRunListener(async (args) => {
+      this.log(`Action: Send G-Code (${args.gcode})`);
+      if (!args.gcode || typeof args.gcode !== 'string') throw new Error('Invalid G-code command');
+      return this.client.sendCommand(SDCP_CMD.FDM_SEND_GCODE, { Gcode: args.gcode.trim() });
     });
     flow.getActionCard('home_axes').registerRunListener(async (args) => {
       this.log(`Action: Home Axes (${args.axes})`);

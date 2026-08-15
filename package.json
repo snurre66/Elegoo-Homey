@@ -1,6 +1,6 @@
 {
   "name": "com.elegoo.sdcp",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "description": "Homey App for Elegoo 3D Printers using SDCP V3",
   "main": "app.js",
   "author": "<HIDDEN>",

@@ -1,0 +1,27 @@
+{
+  "title": {
+    "en": "Stop material feeding",
+    "nl": "Materiaaldoorvoer stoppen",
+    "de": "Materialzufuhr stoppen",
+    "no": "Stopp filamentmating"
+  },
+  "titleFormatted": {
+    "en": "Stop material feeding",
+    "nl": "Stop materiaaldoorvoer",
+    "de": "Stoppe Materialzufuhr",
+    "no": "Stopp filamentmating"
+  },
+  "hint": {
+    "en": "Stops active filament extrusion or material feeding.",
+    "nl": "Stopt actieve filamentextrusie of materiaaltoevoer.",
+    "de": "Stoppt die aktive Filamentextrusion oder Materialzufuhr.",
+    "no": "Stopper aktiv filamentekstrudering eller mating."
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=elegoo_cc"
+    }
+  ]
+}

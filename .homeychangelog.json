@@ -22,5 +22,8 @@
   },
   "1.1.5": {
     "en": "Fix missing 'Paused' status (13) and prevent false disconnects by keeping connection alive on any message received"
+  },
+  "1.1.6": {
+    "en": "Fix status 13 to Printing (Recovery) instead of Paused"
   }
 }
