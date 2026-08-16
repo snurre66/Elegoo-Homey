@@ -33,6 +33,9 @@
     "en": "Fix camera snapshot streaming, convert memory capacity to MB, and enhance SDCP control flows."
   },
   "1.2.3": {
+    "en": "Homing detection, trigger tokens, flow card grammar polish, 2s polling interval, dual status combination (Machine - Print), and packet stability guards."
+  },
+  "1.2.4": {
     "en": "Dual status mapping (Machine - Print), anti-flicker stability guard, custom target temperature sensors, logical capability grouping, dedicated capability icons, trigger tokens, and flow card grammar polish."
   }
 }
