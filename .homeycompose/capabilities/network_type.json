@@ -1,12 +1,13 @@
 {
   "type": "string",
   "title": {
-    "en": "Network Interface",
-    "no": "Nettverksgrensesnitt",
-    "nl": "Netwerkinterface",
-    "de": "Netzwerkschnittstelle"
+    "en": "Network Type",
+    "no": "Nettverkstype",
+    "nl": "Netwerktype",
+    "de": "Netzwerktyp"
   },
   "getable": true,
   "setable": false,
-  "uiComponent": "sensor"
+  "uiComponent": "sensor",
+  "icon": "/assets/icons/network.svg"
 }

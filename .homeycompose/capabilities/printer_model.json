@@ -2,11 +2,12 @@
   "type": "string",
   "title": {
     "en": "Printer Model",
+    "no": "Skrivermodell",
     "nl": "Printermodel",
-    "de": "Druckermodell",
-    "no": "Skrivermodell"
+    "de": "Druckermodell"
   },
   "getable": true,
   "setable": false,
-  "icon": "/assets/icons/info.svg"
+  "uiComponent": "sensor",
+  "icon": "/assets/icons/printer.svg"
 }

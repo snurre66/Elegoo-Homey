@@ -2,11 +2,12 @@
   "type": "string",
   "title": {
     "en": "Firmware Version",
+    "no": "Fastvareversjon",
     "nl": "Firmwareversie",
-    "de": "Firmware-Version",
-    "no": "Fastvareversjon"
+    "de": "Firmware-Version"
   },
   "getable": true,
   "setable": false,
-  "icon": "/assets/icons/info.svg"
+  "uiComponent": "sensor",
+  "icon": "/assets/icons/firmware.svg"
 }

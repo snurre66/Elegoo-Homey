@@ -8,5 +8,6 @@
   },
   "getable": true,
   "setable": false,
-  "icon": "/assets/icons/layer_progress.svg"
+  "uiComponent": "sensor",
+  "icon": "/assets/icons/total_layers.svg"
 }

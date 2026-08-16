@@ -6,10 +6,16 @@
     "de": "Extrusionsfaktor",
     "no": "Ekstruderingsfaktor"
   },
+  "units": {
+    "en": "%",
+    "nl": "%",
+    "de": "%",
+    "no": "%"
+  },
   "getable": true,
   "setable": true,
-  "units": "%",
-  "min": 0,
+  "uiComponent": "slider",
+  "min": 10,
   "max": 200,
-  "step": 1
+  "icon": "/assets/icons/extrusion_factor.svg"
 }

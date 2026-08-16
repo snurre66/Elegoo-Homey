@@ -247,10 +247,6 @@ class ElegooCCDevice extends PrinterDevice {
       return this.client.sendCommand(SDCP_CMD.SKIP_PREHEAT, {});
     });
 
-    // Read-only temperature targets
-    this.registerCapabilityListener('target_temperature.nozzle', async () => true);
-    this.registerCapabilityListener('target_temperature.bed', async () => true);
-
     // Performance factors
     this.registerCapabilityListener('speed_factor', async (value) => {
       this.log(`UI: Set Speed Factor -> ${value}%`);
@@ -345,12 +341,14 @@ class ElegooCCDevice extends PrinterDevice {
 
   _registerFlowConditions() {
     const flow = this.homey.flow;
-    flow
-      .getConditionCard('is_printing')
-      .registerRunListener(async () => this.getCapabilityValue('printer_status') === 'Printing');
-    flow
-      .getConditionCard('is_paused')
-      .registerRunListener(async () => this.getCapabilityValue('printer_status') === 'Paused');
+    flow.getConditionCard('is_printing').registerRunListener(async () => {
+      const s = this.getCapabilityValue('printer_status') || '';
+      return s.toLowerCase().includes('printing');
+    });
+    flow.getConditionCard('is_paused').registerRunListener(async () => {
+      const s = this.getCapabilityValue('printer_status') || '';
+      return s.toLowerCase().includes('paused');
+    });
     flow.getConditionCard('is_offline').registerRunListener(async () => !this.getAvailable());
     flow
       .getConditionCard('is_light_on')

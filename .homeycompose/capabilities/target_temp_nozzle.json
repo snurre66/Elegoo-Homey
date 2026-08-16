@@ -1,0 +1,20 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Target Nozzle",
+    "nl": "Doel nozzle",
+    "de": "Ziel-Düse",
+    "no": "Dyse setttemperatur"
+  },
+  "units": {
+    "en": "°C",
+    "nl": "°C",
+    "de": "°C",
+    "no": "°C"
+  },
+  "decimals": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/assets/icons/target_temp_nozzle.svg"
+}

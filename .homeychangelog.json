@@ -31,5 +31,8 @@
   },
   "1.2.2": {
     "en": "Fix camera snapshot streaming, convert memory capacity to MB, and enhance SDCP control flows."
+  },
+  "1.2.3": {
+    "en": "Dual status mapping (Machine - Print), anti-flicker stability guard, custom target temperature sensors, logical capability grouping, dedicated capability icons, trigger tokens, and flow card grammar polish."
   }
 }

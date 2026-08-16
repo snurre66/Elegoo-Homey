@@ -11,14 +11,14 @@
     "printer_status",
     "print_progress",
     "time_left",
-    "layer_progress",
+    "filename",
     "current_layer",
     "total_layers",
-    "filename",
+    "layer_progress",
     "measure_temperature.nozzle",
-    "target_temperature.nozzle",
+    "target_temp_nozzle",
     "measure_temperature.bed",
-    "target_temperature.bed",
+    "target_temp_bed",
     "measure_temperature",
     "onoff.chamberlight",
     "part_fan_speed",
@@ -44,12 +44,12 @@
     "camera_enabled",
     "video_stream_count",
     "network_type",
-    "firmware_version",
-    "printer_model",
     "ip_address",
     "mac_address",
-    "resolution",
-    "memory_remaining"
+    "memory_remaining",
+    "firmware_version",
+    "printer_model",
+    "resolution"
   ],
   "capabilitiesOptions": {
     "printer_status": {
@@ -125,18 +125,6 @@
         "no": "Dysetemperatur"
       }
     },
-    "target_temperature.nozzle": {
-      "title": {
-        "en": "Target Nozzle",
-        "nl": "Doel nozzle",
-        "de": "Ziel-Düse",
-        "no": "Dyse setttemperatur"
-      },
-      "min": 0,
-      "max": 350,
-      "step": 1,
-      "setable": false
-    },
     "measure_temperature.bed": {
       "title": {
         "en": "Bed Temperature",
@@ -144,18 +132,6 @@
         "de": "Betttemperatur",
         "no": "Bedtemperatur"
       }
-    },
-    "target_temperature.bed": {
-      "title": {
-        "en": "Target Bed",
-        "nl": "Doel bed",
-        "de": "Ziel-Bett",
-        "no": "Bed setttemperatur"
-      },
-      "min": 0,
-      "max": 130,
-      "step": 1,
-      "setable": false
     },
     "measure_temperature": {
       "title": {
@@ -192,7 +168,8 @@
         "nl": "Aux ventilator",
         "de": "Zusatzlüfter",
         "no": "Aux-vifte"
-      }
+      },
+      "icon": "/assets/icons/fan.svg"
     },
     "onoff.exhaustfan": {
       "title": {
@@ -200,7 +177,8 @@
         "nl": "Uitlaatventilator",
         "de": "Abluftlüfter",
         "no": "Eksosvifte"
-      }
+      },
+      "icon": "/assets/icons/exhaust_fan.svg"
     },
     "onoff.boxfan": {
       "title": {
@@ -208,7 +186,8 @@
         "nl": "Interne scrubber (kastventilator)",
         "de": "Interner Wäscher (Gehäuselüfter)",
         "no": "Intern skrubber (boksvifte)"
-      }
+      },
+      "icon": "/assets/icons/box_fan.svg"
     },
     "speed_factor": {
       "title": {
@@ -242,7 +221,8 @@
         "nl": "Pauzeren",
         "de": "Pausieren",
         "no": "Pause"
-      }
+      },
+      "icon": "/assets/icons/button.pause.svg"
     },
     "button.resume": {
       "title": {
@@ -250,7 +230,8 @@
         "nl": "Hervatten",
         "de": "Fortsetzen",
         "no": "Gjenoppta"
-      }
+      },
+      "icon": "/assets/icons/button.resume.svg"
     },
     "button.stop": {
       "title": {
@@ -258,7 +239,8 @@
         "nl": "Annuleren / Stoppen",
         "de": "Abbrechen / Stoppen",
         "no": "Avbryt / Stopp"
-      }
+      },
+      "icon": "/assets/icons/button.stop.svg"
     },
     "button.home": {
       "title": {
@@ -266,7 +248,8 @@
         "nl": "Alle assen home",
         "de": "Alle Achsen homen",
         "no": "Referer alle akser"
-      }
+      },
+      "icon": "/assets/icons/button.home.svg"
     },
     "button.skip_preheat": {
       "title": {
@@ -274,7 +257,8 @@
         "nl": "Voorverwarmen overslaan",
         "de": "Vorheizen überspringen",
         "no": "Hopp over forvarming"
-      }
+      },
+      "icon": "/assets/icons/button.skip_preheat.svg"
     },
     "alarm_filament": {
       "title": {

@@ -2,11 +2,12 @@
   "type": "string",
   "title": {
     "en": "Resolution",
+    "no": "Oppløsning",
     "nl": "Resolutie",
-    "de": "Auflösung",
-    "no": "Oppløsning"
+    "de": "Auflösung"
   },
   "getable": true,
   "setable": false,
-  "icon": "/assets/icons/info.svg"
+  "uiComponent": "sensor",
+  "icon": "/assets/icons/resolution.svg"
 }

@@ -4,9 +4,10 @@
     "en": "Motors Engaged",
     "no": "Motorer aktivert",
     "nl": "Motoren ingeschakeld",
-    "de": "Motoren eingeschaltet"
+    "de": "Motoren aktiviert"
   },
   "getable": true,
   "setable": false,
-  "uiComponent": "sensor"
+  "uiComponent": "sensor",
+  "icon": "/assets/icons/motors.svg"
 }

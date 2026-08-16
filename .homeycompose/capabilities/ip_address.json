@@ -1,12 +1,13 @@
 {
   "type": "string",
   "title": {
-    "en": "Printer IP",
-    "nl": "Printer-IP",
-    "de": "Drucker-IP",
-    "no": "Skriver-IP"
+    "en": "IP Address",
+    "no": "IP-adresse",
+    "nl": "IP-adres",
+    "de": "IP-Adresse"
   },
   "getable": true,
   "setable": false,
-  "icon": "/assets/icons/info.svg"
+  "uiComponent": "sensor",
+  "icon": "/assets/icons/network_ip.svg"
 }
