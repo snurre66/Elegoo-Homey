@@ -1,5 +1,5 @@
 {
-  "type": "number",
+  "type": "string",
   "title": {
     "en": "Time Remaining",
     "nl": "Resterende tijd",
@@ -8,11 +8,6 @@
   },
   "getable": true,
   "setable": false,
-  "units": {
-    "en": "min",
-    "nl": "min",
-    "de": "min",
-    "no": "min"
-  },
+  "uiComponent": "sensor",
   "icon": "/assets/icons/time_left.svg"
 }

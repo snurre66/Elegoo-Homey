@@ -37,5 +37,8 @@
   },
   "1.2.4": {
     "en": "Dual status mapping (Machine - Print), anti-flicker stability guard, custom target temperature sensors, logical capability grouping, dedicated capability icons, trigger tokens, and flow card grammar polish."
+  },
+  "1.2.5": {
+    "en": "Format remaining print time as HH:MM:SS digital clock string and verify unit consistency across all capabilities."
   }
 }

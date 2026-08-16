@@ -13,7 +13,7 @@
     "de": "Integrieren Sie Elegoo 3D-Drucker mühelos in Ihr Smart Home über das lokale SDCP-Protokoll.",
     "no": "Integrer Elegoo 3D-skrivere enkelt i ditt smarthjem via den lokale SDCP-protokollen."
   },
-  "version": "1.2.4",
+  "version": "1.2.5",
   "sdk": 3,
   "author": {
     "name": "Thomas Veivåg",
@@ -1958,7 +1958,7 @@
       "icon": "/assets/icons/target_temp_nozzle.svg"
     },
     "time_left": {
-      "type": "number",
+      "type": "string",
       "title": {
         "en": "Time Remaining",
         "nl": "Resterende tijd",
@@ -1967,12 +1967,7 @@
       },
       "getable": true,
       "setable": false,
-      "units": {
-        "en": "min",
-        "nl": "min",
-        "de": "min",
-        "no": "min"
-      },
+      "uiComponent": "sensor",
       "icon": "/assets/icons/time_left.svg"
     },
     "total_layers": {
