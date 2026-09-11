@@ -40,5 +40,8 @@
   },
   "1.2.5": {
     "en": "Format remaining print time as HH:MM:SS digital clock string and verify unit consistency across all capabilities."
+  },
+  "1.2.6": {
+    "en": "Fix critical memory leaks causing spawn ENOMEM errors: throttled Insights database logging, removed unneeded camera polling, optimized IPC capability updates, and hardened WebSocket reconnection."
   }
 }
