@@ -62,7 +62,6 @@ class ElegooCCDevice extends PrinterDevice {
   async onUninit() {
     this.log('Elegoo CC Device uninitializing');
     if (this._attrInterval) this.homey.clearInterval(this._attrInterval);
-    if (this._cameraInterval) this.homey.clearInterval(this._cameraInterval);
     await super.onUninit();
   }
 
@@ -128,11 +127,6 @@ class ElegooCCDevice extends PrinterDevice {
 
       this.thumbnailImage.update().catch(() => {});
 
-      // Refresh every 5 seconds (better for Web UI fallback)
-      this._cameraInterval = this.homey.setInterval(() => {
-        this.snapshotImage.update().catch(() => {});
-      }, 5000);
-
       // Live Video Stream (supported on Homey Pro 2023+, optional on older models)
       if (this.homey.videos && typeof this.homey.videos.createVideoOther === 'function') {
         try {
@@ -157,60 +151,74 @@ class ElegooCCDevice extends PrinterDevice {
 
   async _fetchSnapshotBuffer() {
     return new Promise((resolve) => {
+      let isResolved = false;
+      let req = null;
+      let timeout = null;
+
+      const done = (result) => {
+        if (isResolved) return;
+        isResolved = true;
+        if (timeout) this.homey.clearTimeout(timeout);
+        if (req && !req.destroyed) {
+          req.destroy();
+        }
+        resolve(result);
+      };
+
       const url = `http://${this.host}:3031/video`;
       this.log(`Camera: connecting to ${url}`);
 
-      const timeout = setTimeout(() => {
+      timeout = this.homey.setTimeout(() => {
         this.log('Camera: timeout waiting for MJPEG frame');
-        req.destroy();
-        resolve(null);
+        done(null);
       }, 5000);
 
-      const req = http.get(url, (res) => {
+      req = http.get(url, (res) => {
         this.log(`Camera: HTTP ${res.statusCode} content-type: ${res.headers['content-type']}`);
         if (res.statusCode !== 200) {
-          clearTimeout(timeout);
           res.resume();
-          resolve(null);
+          done(null);
           return;
         }
 
         // Scan incoming chunks for JPEG SOI (0xFFD8) and EOI (0xFFD9) markers
         const chunks = [];
-        let frameFound = false;
+        let totalBytes = 0;
 
         res.on('data', (chunk) => {
-          if (frameFound) return;
+          if (isResolved) return;
           chunks.push(chunk);
+          totalBytes += chunk.length;
+
+          // Guard against runaway memory if stream is corrupt (max 2MB per frame search)
+          if (totalBytes > 2 * 1024 * 1024) {
+            this.log('Camera: frame buffer exceeded 2MB without EOI marker');
+            done(null);
+            return;
+          }
+
           const buf = Buffer.concat(chunks);
           const start = buf.indexOf(Buffer.from([0xff, 0xd8]));
           if (start !== -1) {
             const end = buf.indexOf(Buffer.from([0xff, 0xd9]), start + 2);
             if (end !== -1) {
-              frameFound = true;
-              clearTimeout(timeout);
               const frame = buf.slice(start, end + 2);
               this.log(`Camera: extracted JPEG frame ${frame.length} bytes`);
-              req.destroy();
-              resolve(frame);
+              done(frame);
             }
           }
         });
 
         res.on('end', () => {
-          if (!frameFound) {
-            clearTimeout(timeout);
-            this.log('Camera: stream ended without a complete frame');
-            resolve(null);
-          }
+          done(null);
         });
       });
 
       req.on('error', (err) => {
-        if (err.code === 'ECONNRESET' || err.message.includes('socket hang up')) return;
-        clearTimeout(timeout);
-        this.error(`Camera: fetch error: ${err.message}`);
-        resolve(null);
+        if (err.code !== 'ECONNRESET' && !err.message.includes('socket hang up')) {
+          this.error(`Camera: fetch error: ${err.message}`);
+        }
+        done(null);
       });
     });
   }
@@ -425,6 +433,9 @@ class ElegooCCDevice extends PrinterDevice {
     const newStatus = CapabilityMapper.updateStatus(this, attr);
     if (newStatus && newStatus !== oldStatus) {
       CapabilityMapper.handleStatusTriggers(this, newStatus, oldStatus);
+      if (this.snapshotImage) {
+        this.snapshotImage.update().catch(() => {});
+      }
     }
 
     // Map remaining telemetry
@@ -493,7 +504,6 @@ class ElegooCCDevice extends PrinterDevice {
 
   onDeleted() {
     this.log('Device being deleted or app stopped, cleaning up...');
-    if (this._cameraInterval) this.homey.clearInterval(this._cameraInterval);
     if (this._homingTimeout) this.homey.clearTimeout(this._homingTimeout);
     if (this.client) {
       this.client.disconnect();
