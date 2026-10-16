@@ -43,5 +43,8 @@
   },
   "1.2.6": {
     "en": "Fix critical memory leaks causing spawn ENOMEM errors: throttled Insights database logging, removed unneeded camera polling, optimized IPC capability updates, and hardened WebSocket reconnection."
+  },
+  "1.2.7": {
+    "en": "Resolved camera stream memory churn, optimized threshold trigger IPC queries, fixed zombie connection heartbeat watchdog, and added state dropdowns to door and USB flow triggers."
   }
 }
