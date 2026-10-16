@@ -18,7 +18,7 @@ class ElegooCCDriver extends Homey.Driver {
 
     const existingDevice = existingDevices.find((d) => {
       const settings = d.getSettings();
-      return (mid && settings.mainboard_id === mid) || d.getData().id === printer.address;
+      return (mid && (settings.mainboard_id === mid || d.getData().id === mid)) || d.getData().id === printer.address;
     });
 
     let dataId = mid || printer.address;

@@ -1,10 +1,14 @@
 'use strict';
 
 const http = require('http');
-const { Duplex } = require('stream');
+const { Readable } = require('stream');
 const PrinterDevice = require('../../lib/PrinterDevice');
 const { SDCP_CMD } = require('../../lib/SDCPCommands');
 const CapabilityMapper = require('../../lib/CapabilityMapper');
+
+// Static JPEG SOI and EOI markers
+const JPEG_SOI = Buffer.from([0xff, 0xd8]);
+const JPEG_EOI = Buffer.from([0xff, 0xd9]);
 
 // 1x1 transparent PNG fallback buffer to prevent Homey decoding errors when idle
 const FALLBACK_THUMBNAIL_BUFFER = Buffer.from(
@@ -18,9 +22,12 @@ class ElegooCCDevice extends PrinterDevice {
     this.log(`Elegoo Centauri Carbon device initialized at ${this.host}`);
 
     this._lastTaskId = null;
+    this._lastThumbData = null;
     this.thumbnailBuffer = null;
+    this._homingTimeout = null;
+    this._initCameraTimeout = null;
 
-    this.registerCamera().catch(this.error);
+    this.registerCamera().catch((err) => this.error(err));
     this._registerListeners();
     this._registerFlowActions();
     this._registerFlowConditions();
@@ -40,8 +47,8 @@ class ElegooCCDevice extends PrinterDevice {
 
     // Set static info from settings if available
     const settings = this.getSettings();
-    if (settings.model) this.setCapabilityValue('printer_model', settings.model).catch(this.error);
-    if (settings.address) this.setCapabilityValue('ip_address', settings.address).catch(this.error);
+    if (settings.model) this.setCapabilityValue('printer_model', settings.model).catch((err) => this.error(err));
+    if (settings.address) this.setCapabilityValue('ip_address', settings.address).catch((err) => this.error(err));
 
     // Connect after all capabilities are ready
     this.client.connect();
@@ -62,6 +69,8 @@ class ElegooCCDevice extends PrinterDevice {
   async onUninit() {
     this.log('Elegoo CC Device uninitializing');
     if (this._attrInterval) this.homey.clearInterval(this._attrInterval);
+    if (this._homingTimeout) this.homey.clearTimeout(this._homingTimeout);
+    if (this._initCameraTimeout) this.homey.clearTimeout(this._initCameraTimeout);
     await super.onUninit();
   }
 
@@ -76,24 +85,11 @@ class ElegooCCDevice extends PrinterDevice {
         this.log('Camera: setStream called, fetching snapshot...');
         try {
           const buffer = await this._fetchSnapshotBuffer();
-          const snapshot = new Duplex();
-          snapshot._read = () => {};
-
-          if (buffer && buffer.length > 0) {
-            this.log(`Camera: pushing frame of ${buffer.length} bytes`);
-            snapshot.push(buffer);
-          } else {
-            this.log('Camera: no frame, pushing empty stream');
-          }
-
-          snapshot.push(null); // End of stream
-          return snapshot.pipe(stream);
+          const buf = buffer && buffer.length > 0 ? buffer : FALLBACK_THUMBNAIL_BUFFER;
+          return Readable.from(buf).pipe(stream);
         } catch (error) {
           this.error('Camera mapping error:', error.message);
-          const snapshot = new Duplex();
-          snapshot._read = () => {};
-          snapshot.push(null);
-          return snapshot.pipe(stream);
+          return Readable.from(FALLBACK_THUMBNAIL_BUFFER).pipe(stream);
         }
       });
 
@@ -102,7 +98,7 @@ class ElegooCCDevice extends PrinterDevice {
         .catch((e) => this.error('Camera: setCameraImage FAILED:', e.message));
 
       // Initial fetch after 3s
-      this.homey.setTimeout(() => {
+      this._initCameraTimeout = this.homey.setTimeout(() => {
         this.snapshotImage
           .update()
           .then(() => this.log('Camera: initial update() OK'))
@@ -112,13 +108,9 @@ class ElegooCCDevice extends PrinterDevice {
       // Thumbnail Preview Image (with fallback buffer to prevent decoder errors)
       this.thumbnailImage = await this.homey.images.createImage();
       this.thumbnailImage.setStream(async (stream) => {
-        const snapshot = new Duplex();
-        snapshot._read = () => {};
         const buf =
           this.thumbnailBuffer && this.thumbnailBuffer.length > 0 ? this.thumbnailBuffer : FALLBACK_THUMBNAIL_BUFFER;
-        snapshot.push(buf);
-        snapshot.push(null);
-        return snapshot.pipe(stream);
+        return Readable.from(buf).pipe(stream);
       });
 
       await this.setCameraImage('elegoo_thumbnail', 'Print Preview', this.thumbnailImage)
@@ -153,14 +145,27 @@ class ElegooCCDevice extends PrinterDevice {
     return new Promise((resolve) => {
       let isResolved = false;
       let req = null;
+      let resRef = null;
       let timeout = null;
 
       const done = (result) => {
         if (isResolved) return;
         isResolved = true;
         if (timeout) this.homey.clearTimeout(timeout);
+        if (resRef) {
+          try {
+            resRef.removeAllListeners();
+            resRef.destroy();
+          } catch (_e) {
+            // Ignore stream destroy error
+          }
+        }
         if (req && !req.destroyed) {
-          req.destroy();
+          try {
+            req.destroy();
+          } catch (_e) {
+            // Ignore request abort error
+          }
         }
         resolve(result);
       };
@@ -174,6 +179,7 @@ class ElegooCCDevice extends PrinterDevice {
       }, 5000);
 
       req = http.get(url, (res) => {
+        resRef = res;
         this.log(`Camera: HTTP ${res.statusCode} content-type: ${res.headers['content-type']}`);
         if (res.statusCode !== 200) {
           res.resume();
@@ -197,14 +203,17 @@ class ElegooCCDevice extends PrinterDevice {
             return;
           }
 
-          const buf = Buffer.concat(chunks);
-          const start = buf.indexOf(Buffer.from([0xff, 0xd8]));
-          if (start !== -1) {
-            const end = buf.indexOf(Buffer.from([0xff, 0xd9]), start + 2);
-            if (end !== -1) {
-              const frame = buf.slice(start, end + 2);
-              this.log(`Camera: extracted JPEG frame ${frame.length} bytes`);
-              done(frame);
+          // Fast path: only test buffer concat if the current chunk contains JPEG end marker byte
+          if (chunk.includes(0xd9)) {
+            const buf = Buffer.concat(chunks);
+            const start = buf.indexOf(JPEG_SOI);
+            if (start !== -1) {
+              const end = buf.indexOf(JPEG_EOI, start + 2);
+              if (end !== -1) {
+                const frame = buf.slice(start, end + 2);
+                this.log(`Camera: extracted JPEG frame ${frame.length} bytes`);
+                done(frame);
+              }
             }
           }
         });
@@ -258,7 +267,7 @@ class ElegooCCDevice extends PrinterDevice {
     // Performance factors
     this.registerCapabilityListener('speed_factor', async (value) => {
       this.log(`UI: Set Speed Factor -> ${value}%`);
-      return this.client.sendCommand(403, { PrintSpeedPct: value });
+      return this.client.sendCommand(SDCP_CMD.CC_SET_CONFIG, { PrintSpeedPct: value });
     });
     this.registerCapabilityListener('extrusion_factor', async (value) => {
       this.log(`UI: Set Extrusion Factor -> ${value}%`);
@@ -278,7 +287,7 @@ class ElegooCCDevice extends PrinterDevice {
       return this.client.sendCommand(SDCP_CMD.CC_SET_CONFIG, { TargetFanSpeed: { AuxiliaryFan: value ? 100 : 0 } });
     });
     this.registerCapabilityListener('onoff.exhaustfan', async (value) => {
-      return this.client.sendCommand(SDCP_CMD.CC_SET_CONFIG, { TargetFanSpeed: { BoxFan: value ? 100 : 0 } });
+      return this.client.sendCommand(SDCP_CMD.CC_SET_CONFIG, { TargetFanSpeed: { ExhaustFan: value ? 100 : 0 } });
     });
     this.registerCapabilityListener('onoff.boxfan', async (value) => {
       this.log(`UI: Set Box Fan -> ${value ? 'ON' : 'OFF'}`);
@@ -290,58 +299,68 @@ class ElegooCCDevice extends PrinterDevice {
 
   _registerFlowActions() {
     const flow = this.homey.flow;
-    flow.getActionCard('emergency_stop').registerRunListener(async () => {
-      this.log('Action: Emergency Stop');
-      return this.client.sendCommand(SDCP_CMD.STOP_PRINT, {});
+    flow.getActionCard('emergency_stop').registerRunListener(async (args) => {
+      const device = args?.device || this;
+      device.log('Action: Emergency Stop');
+      return device.client.sendCommand(SDCP_CMD.STOP_PRINT, {});
     });
-    flow.getActionCard('pause_print').registerRunListener(async () => {
-      this.log('Action: Pause Print');
-      return this.client.sendCommand(SDCP_CMD.PAUSE_PRINT, {});
+    flow.getActionCard('pause_print').registerRunListener(async (args) => {
+      const device = args?.device || this;
+      device.log('Action: Pause Print');
+      return device.client.sendCommand(SDCP_CMD.PAUSE_PRINT, {});
     });
-    flow.getActionCard('resume_print').registerRunListener(async () => {
-      this.log('Action: Resume Print');
-      return this.client.sendCommand(SDCP_CMD.RESUME_PRINT, {});
+    flow.getActionCard('resume_print').registerRunListener(async (args) => {
+      const device = args?.device || this;
+      device.log('Action: Resume Print');
+      return device.client.sendCommand(SDCP_CMD.RESUME_PRINT, {});
     });
-    flow.getActionCard('skip_preheat').registerRunListener(async () => {
-      this.log('Action: Skip Preheating');
-      return this.client.sendCommand(SDCP_CMD.SKIP_PREHEAT, {});
+    flow.getActionCard('skip_preheat').registerRunListener(async (args) => {
+      const device = args?.device || this;
+      device.log('Action: Skip Preheating');
+      return device.client.sendCommand(SDCP_CMD.SKIP_PREHEAT, {});
     });
-    flow.getActionCard('stop_feeding').registerRunListener(async () => {
-      this.log('Action: Stop Material Feeding');
-      return this.client.sendCommand(SDCP_CMD.STOP_FEEDING, {});
+    flow.getActionCard('stop_feeding').registerRunListener(async (args) => {
+      const device = args?.device || this;
+      device.log('Action: Stop Material Feeding');
+      return device.client.sendCommand(SDCP_CMD.STOP_FEEDING, {});
     });
     flow.getActionCard('send_gcode').registerRunListener(async (args) => {
-      this.log(`Action: Send G-Code (${args.gcode})`);
+      const device = args?.device || this;
+      device.log(`Action: Send G-Code (${args.gcode})`);
       if (!args.gcode || typeof args.gcode !== 'string') throw new Error('Invalid G-code command');
-      return this.client.sendCommand(SDCP_CMD.FDM_SEND_GCODE, { Gcode: args.gcode.trim() });
+      return device.client.sendCommand(SDCP_CMD.FDM_SEND_GCODE, { Gcode: args.gcode.trim() });
     });
     flow.getActionCard('home_axes').registerRunListener(async (args) => {
-      this.log(`Action: Home Axes (${args.axes})`);
-      this._isHoming = true;
-      this.setCapabilityValue('printer_status', 'Homing').catch(() => {});
-      if (this._homingTimeout) this.homey.clearTimeout(this._homingTimeout);
-      this._homingTimeout = this.homey.setTimeout(() => {
-        this._isHoming = false;
-        this.updateCapabilities({});
+      const device = args?.device || this;
+      device.log(`Action: Home Axes (${args.axes})`);
+      device._isHoming = true;
+      device.setCapabilityValue('printer_status', 'Homing').catch(() => {});
+      if (device._homingTimeout) device.homey.clearTimeout(device._homingTimeout);
+      device._homingTimeout = device.homey.setTimeout(() => {
+        device._isHoming = false;
+        device.updateCapabilities({});
       }, 25000);
-      return this.client.sendCommand(402, { Axis: args.axes });
+      return device.client.sendCommand(SDCP_CMD.CC_HOME_ALL, { Axis: args.axes });
     });
     flow.getActionCard('set_speed_preset').registerRunListener(async (args) => {
+      const device = args?.device || this;
       const pct = parseInt(args.preset);
-      this.log(`Action: Set Speed Preset (${pct}%)`);
-      return this.client.sendCommand(403, { PrintSpeedPct: pct });
+      device.log(`Action: Set Speed Preset (${pct}%)`);
+      return device.client.sendCommand(SDCP_CMD.CC_SET_CONFIG, { PrintSpeedPct: pct });
     });
     flow.getActionCard('set_fan_speed_pct').registerRunListener(async (args) => {
-      this.log(`Action: Set Fan Speed (${args.fan} -> ${args.percentage}%)`);
-      const keyMap = { model: 'ModelFan', aux: 'AuxiliaryFan', exhaust: 'BoxFan' };
+      const device = args?.device || this;
+      device.log(`Action: Set Fan Speed (${args.fan} -> ${args.percentage}%)`);
+      const keyMap = { model: 'ModelFan', aux: 'AuxiliaryFan', exhaust: 'ExhaustFan' };
       const fanKey = keyMap[args.fan];
       if (!fanKey) throw new Error('Invalid fan selected');
-      return this.client.sendCommand(403, { TargetFanSpeed: { [fanKey]: args.percentage } });
+      return device.client.sendCommand(SDCP_CMD.CC_SET_CONFIG, { TargetFanSpeed: { [fanKey]: args.percentage } });
     });
     flow.getActionCard('set_chamber_light').registerRunListener(async (args) => {
+      const device = args?.device || this;
       const isOn = args.state === 'on' || args.state === true || args.state === 1;
-      this.log(`Action: Set Chamber Light (${isOn ? 'ON' : 'OFF'})`);
-      return this.client.sendCommand(403, { LightStatus: { SecondLight: isOn ? 1 : 0 } });
+      device.log(`Action: Set Chamber Light (${isOn ? 'ON' : 'OFF'})`);
+      return device.client.sendCommand(SDCP_CMD.CC_SET_CONFIG, { LightStatus: { SecondLight: isOn ? 1 : 0 } });
     });
   }
 
@@ -349,18 +368,24 @@ class ElegooCCDevice extends PrinterDevice {
 
   _registerFlowConditions() {
     const flow = this.homey.flow;
-    flow.getConditionCard('is_printing').registerRunListener(async () => {
-      const s = this.getCapabilityValue('printer_status') || '';
+    flow.getConditionCard('is_printing').registerRunListener(async (args) => {
+      const device = args?.device || this;
+      const s = device.getCapabilityValue('printer_status') || '';
       return s.toLowerCase().includes('printing');
     });
-    flow.getConditionCard('is_paused').registerRunListener(async () => {
-      const s = this.getCapabilityValue('printer_status') || '';
+    flow.getConditionCard('is_paused').registerRunListener(async (args) => {
+      const device = args?.device || this;
+      const s = device.getCapabilityValue('printer_status') || '';
       return s.toLowerCase().includes('paused');
     });
-    flow.getConditionCard('is_offline').registerRunListener(async () => !this.getAvailable());
-    flow
-      .getConditionCard('is_light_on')
-      .registerRunListener(async () => this.getCapabilityValue('onoff.chamberlight') === true);
+    flow.getConditionCard('is_offline').registerRunListener(async (args) => {
+      const device = args?.device || this;
+      return !device.getAvailable();
+    });
+    flow.getConditionCard('is_light_on').registerRunListener(async (args) => {
+      const device = args?.device || this;
+      return device.getCapabilityValue('onoff.chamberlight') === true;
+    });
   }
 
   // ── Capability Updates (delegated to CapabilityMapper) ────
@@ -476,25 +501,32 @@ class ElegooCCDevice extends PrinterDevice {
 
   _handleThumbnail(thumbData) {
     if (!this.thumbnailImage || !thumbData) return;
+    if (thumbData === this._lastThumbData) return;
+    this._lastThumbData = thumbData;
+
     try {
       if (typeof thumbData === 'string') {
         if (thumbData.startsWith('http://') || thumbData.startsWith('https://')) {
-          http
-            .get(thumbData, (res) => {
-              const chunks = [];
-              res.on('data', (c) => chunks.push(c));
-              res.on('end', () => {
-                if (chunks.length > 0) {
-                  this.thumbnailBuffer = Buffer.concat(chunks);
-                  this.thumbnailImage.update().catch(this.error);
-                }
-              });
-            })
-            .on('error', (e) => this.error('Error fetching thumbnail URL:', e.message));
+          const req = http.get(thumbData, (res) => {
+            if (res.statusCode !== 200) {
+              res.resume();
+              return;
+            }
+            const chunks = [];
+            res.on('data', (c) => chunks.push(c));
+            res.on('end', () => {
+              if (chunks.length > 0) {
+                this.thumbnailBuffer = Buffer.concat(chunks);
+                this.thumbnailImage.update().catch((err) => this.error(err));
+              }
+            });
+          });
+          req.setTimeout(5000, () => req.destroy());
+          req.on('error', (e) => this.error('Error fetching thumbnail URL:', e.message));
         } else {
           const cleanBase64 = thumbData.replace(/^data:image\/\w+;base64,/, '');
           this.thumbnailBuffer = Buffer.from(cleanBase64, 'base64');
-          this.thumbnailImage.update().catch(this.error);
+          this.thumbnailImage.update().catch((err) => this.error(err));
         }
       }
     } catch (err) {

@@ -30,6 +30,30 @@
       "type": "device",
       "name": "device",
       "filter": "driver_id=elegoo_cc"
+    },
+    {
+      "name": "state",
+      "type": "dropdown",
+      "values": [
+        {
+          "id": "opened",
+          "label": {
+            "en": "opened",
+            "nl": "geopend",
+            "de": "geöffnet",
+            "no": "åpnet"
+          }
+        },
+        {
+          "id": "closed",
+          "label": {
+            "en": "closed",
+            "nl": "gesloten",
+            "de": "geschlossen",
+            "no": "lukket"
+          }
+        }
+      ]
     }
   ]
 }

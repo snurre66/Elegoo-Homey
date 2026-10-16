@@ -202,6 +202,30 @@
             "type": "device",
             "name": "device",
             "filter": "driver_id=elegoo_cc"
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "opened",
+                "label": {
+                  "en": "opened",
+                  "nl": "geopend",
+                  "de": "geöffnet",
+                  "no": "åpnet"
+                }
+              },
+              {
+                "id": "closed",
+                "label": {
+                  "en": "closed",
+                  "nl": "gesloten",
+                  "de": "geschlossen",
+                  "no": "lukket"
+                }
+              }
+            ]
           }
         ]
       },
@@ -628,6 +652,30 @@
             "type": "device",
             "name": "device",
             "filter": "driver_id=elegoo_cc"
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "inserted",
+                "label": {
+                  "en": "inserted",
+                  "nl": "geplaatst",
+                  "de": "eingesteckt",
+                  "no": "satt inn"
+                }
+              },
+              {
+                "id": "removed",
+                "label": {
+                  "en": "removed",
+                  "nl": "verwijderd",
+                  "de": "entfernt",
+                  "no": "fjernet"
+                }
+              }
+            ]
           }
         ]
       },
